@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord.utils import get
 import os
 
-TOKEN = os.environ["ACCESS_TOKEN"]
+TOKEN = os.getenv['ACCESS_TOKEN']
 BOT_PREFIX = 'boi '
 
 bot = commands.Bot(command_prefix=BOT_PREFIX)
