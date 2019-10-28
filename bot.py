@@ -11,6 +11,9 @@ bot = commands.Bot(command_prefix=BOT_PREFIX)
 @bot.event
 async def on_ready():
     print("Logged in as: " + bot.user.name + "\n")
+    discord.opus.load_opus('libopus.so')
+    if not discord.opus.is_loaded():
+        raise RunTimeError('Opus failed to load')
 
 
 @bot.command(pass_context=True, aliases=['j', 'joi'])
