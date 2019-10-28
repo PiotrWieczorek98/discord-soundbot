@@ -114,6 +114,6 @@ async def list(ctx):
     basepath = 'sounds/'
     for entry in os.listdir(basepath):
         if os.path.isfile(os.path.join(basepath, entry)):
-        ctx.send(entry)
+            ctx.send(entry)
 
 bot.run(TOKEN)
