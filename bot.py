@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord.utils import get
 import os
 
-TOKEN = os.getenv['ACCESS_TOKEN']
+BOT_TOKEN = os.getenv['ACCESS_TOKEN']
 BOT_PREFIX = 'boi '
 
 bot = commands.Bot(command_prefix=BOT_PREFIX)
@@ -116,4 +116,4 @@ async def list(ctx):
         if os.path.isfile(os.path.join(basepath, entry)):
             ctx.send(entry)
 
-bot.run(TOKEN)
+bot.run(BOT_TOKEN)
