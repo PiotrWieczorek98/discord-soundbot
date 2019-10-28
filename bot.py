@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord.utils import get
 import os
 
-TOKEN = 'NTk1NzIxNjQ5NzE5MDgzMDA4.XbXrTQ.cPlF8NwvYR9EmqDTBcnJa1io8xQ'
+TOKEN = os.environ["ACCESS_TOKEN"]
 BOT_PREFIX = 'boi '
 
 bot = commands.Bot(command_prefix=BOT_PREFIX)
@@ -108,4 +108,12 @@ async def stop(ctx):
     else:
         print("No music playing failed to stop")
         await ctx.send("Jakbych coś groł, to bych to sztopnoł")
+
+@bot.command(pass_context=True, aliases=['l', 'lista'])
+async def list(ctx):
+    basepath = 'sounds/'
+    for entry in os.listdir(basepath):
+        if os.path.isfile(os.path.join(basepath, entry)):
+        ctx.send(entry)
+
 bot.run(TOKEN)
