@@ -11,7 +11,7 @@ bot = commands.Bot(command_prefix=BOT_PREFIX)
 @bot.event
 async def on_ready():
     print("Logged in as: " + bot.user.name + "\n")
-    #discord.opus.load_opus('libopus.so')
+
     if not discord.opus.is_loaded():
         raise RunTimeError('Opus failed to load')
 
@@ -31,7 +31,7 @@ async def join(ctx):
     await ctx.send(f"No cześć")
 
 
-@bot.command(pass_context=True, aliases=['l', 'dc','disconnect'])
+@bot.command(pass_context=True, aliases=['dc','disconnect'])
 async def leave(ctx):
     channel = ctx.message.author.voice.channel
     voice = get(bot.voice_clients, guild=ctx.guild)
@@ -53,7 +53,6 @@ async def play(ctx, mp3: str):
 
     if voice and voice.is_connected():
         await voice.move_to(channel)
-        await ctx.send(f"No siema")
     else:
         voice = await channel.connect()
         print(f"The bot has connected to {channel}\n")
@@ -112,8 +111,11 @@ async def stop(ctx):
 @bot.command(pass_context=True, aliases=['l', 'lista'])
 async def list(ctx):
     basepath = 'sounds/'
+    soundsList = ""
     for entry in os.listdir(basepath):
         if os.path.isfile(os.path.join(basepath, entry)):
-            ctx.send(entry)
+            soundsList += entry + "\n"
+    await ctx.send(soundsList)
+
 
 bot.run(BOT_TOKEN)
