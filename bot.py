@@ -18,7 +18,6 @@ bot.remove_command("list")
 
 # CREATE QUEUE
 queue = []
-sound_list = []
 
 # WHEN READY CHANGE STATUS AND CREATE BACKGROUND TASK
 @bot.event
@@ -92,7 +91,7 @@ async def random(ctx):
 @bot.command(aliases=['l', 'sounds'])
 async def list(ctx):
     sounds = "```css\n[Lista Dźwięków]\n"
-
+    sound_list = []
     for entry in os.listdir(SOUNDS_LOC):
         if os.path.isfile(os.path.join(SOUNDS_LOC, entry)):
             sound_list.append(entry)
