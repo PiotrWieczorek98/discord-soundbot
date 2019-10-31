@@ -10,8 +10,11 @@ BOT_TOKEN = 'NTk1NzIxNjQ5NzE5MDgzMDA4.Xba5Yw.kEDMTabHk8DHXzMFdLQLXrDsi7k'
 BOT_PREFIX = 'boi '
 SOUNDS_LOC = "sounds/"
 TIMEOUT = 120
+SZYMON_ID = 200245153586216960
+TOMASZ_ID = 200245734572818432
+PIECZOR_ID = 200303039863717889
 
-# SET PREFIX, REMOVE HELP AND LIST COMMAND TO REPLACE IT LATER
+# SET PREFIX, REMOVE HELP AND LIST COMMANDS TO REPLACE IT LATER
 bot = commands.Bot(command_prefix=BOT_PREFIX)
 bot.remove_command("help")
 bot.remove_command("list")
@@ -27,9 +30,24 @@ async def on_ready():
     print("Logged in as: " + bot.user.name + "\n")
 
 
+@bot.event
+async def on_message(message):
+    if bot.user.id != message.author.id:
+        if "szymon" in message.content or "Szymon" in message.content:
+            await message.channel.send("Szymon more like pedał hehe")
+
+    if message.author.id == SZYMON_ID:
+        await message.add_reaction("💩")
+    if message.author.id == TOMASZ_ID:
+        await message.add_reaction("🌈")
+
+    await bot.process_commands(message)
+
+
 # BACKGROUND TASK
 async def audio_player_task():
     counter = 0
+    booly = True
     while not bot.is_closed():
         if len(queue) > 0:
             sound_tuple = queue[0]
@@ -40,6 +58,9 @@ async def audio_player_task():
                 voice.play(discord.FFmpegPCMAudio(audio_source))
                 queue.pop(0)
         counter += 1
+        if counter > 1:
+            counter = 0
+
         await asyncio.sleep(1)
 
 ###############################################################################
@@ -164,14 +185,14 @@ async def volume(ctx, value: int):
 async def help(ctx):
     embed = discord.Embed(colour=discord.Colour.orange())
     embed.set_author(name='Help')
-    embed.add_field(name='play', value='Działa też p, pla. Nazwa pliku bez.mp3', inline=False)
-    embed.add_field(name='list', value='Działa też l, lis. Lista dźwięków', inline=False)
-    embed.add_field(name='random', value='Działa też ran, los. Lista dźwięków', inline=False)
+    embed.add_field(name='play, p, pla', value='Nazwa pliku bez.mp3', inline=False)
+    embed.add_field(name='list, l, lis', value='Lista dźwięków', inline=False)
+    embed.add_field(name='random,ran, los', value='Losowy dźwięk', inline=False)
     embed.add_field(name='volume', value='Zmiana głośności', inline=False)
-    embed.add_field(name='leave', value='Działa też dc, disconnect', inline=False)
-    embed.add_field(name='pause', value='Działa też pa, pau', inline=False)
-    embed.add_field(name='stop', value='Działa też s, sto', inline=False)
-    embed.add_field(name='resume', value='Działa też r, res', inline=False)
+    embed.add_field(name='leave, dc, disconnect', value='Koniec dobrej zabawy', inline=False)
+    embed.add_field(name='pause, pau, pa', value='Wstrzymanie dobrej zabawy', inline=False)
+    embed.add_field(name='resume, r , res', value='Wznowienie dobrej zabawy', inline=False)
+    embed.add_field(name='stop,s, sto', value='Kiedy "cotentyp" leci zbyt długo', inline=False)
     await ctx.send(embed=embed)
 
 ###############################################################################
