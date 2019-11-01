@@ -59,7 +59,7 @@ async def on_message(message):
             else:
                 await message.attachments[0].save(SOUNDS_LOC + file_name)
                 print("Added " + SOUNDS_LOC + file_name)
-                message.channel.send("Dodano " + SOUNDS_LOC + file_name)
+                await message.channel.send("Dodano " + file_name)
                 reload_list()
 
     await bot.process_commands(message)
