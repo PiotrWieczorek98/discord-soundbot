@@ -1,9 +1,9 @@
+import io
 import discord
 from discord.ext import commands
 from discord.utils import get
 import os
 import asyncio
-import bisect
 from random import choice
 
 # BOT SETTINGS
@@ -14,6 +14,7 @@ TIMEOUT = 120
 SZYMON_ID = 200245153586216960
 TOMASZ_ID = 200245734572818432
 PIECZOR_ID = 200303039863717889
+SOUNDS_CHANNEL = 594937312736182313
 
 # SET PREFIX, REMOVE HELP AND LIST COMMANDS TO REPLACE IT LATER
 bot = commands.Bot(command_prefix=BOT_PREFIX)
@@ -25,6 +26,7 @@ queue = []
 sound_names = []
 id_names_tuples = []
 
+
 # WHEN READY CHANGE STATUS AND CREATE BACKGROUND TASK
 @bot.event
 async def on_ready():
@@ -33,16 +35,12 @@ async def on_ready():
     print("Logged in as: " + bot.user.name + "\n")
 
     # LOAD SOUNDS
-    for entry in os.listdir(SOUNDS_LOC):
-        if os.path.isfile(os.path.join(SOUNDS_LOC, entry)):
-            sound_names.append(entry)
-    sound_names.sort()
-    counter = 0
-    for entry in sound_names:
-        counter += 1
-        id_names_tuples.append((counter, entry))
+    reload_list()
 
 
+###############################################################################
+#                                 ON MESSAGE
+###############################################################################
 @bot.event
 async def on_message(message):
     if bot.user.id != message.author.id:
@@ -50,14 +48,26 @@ async def on_message(message):
             await message.channel.send("Szymon more like pedał hehe")
         if "gachi" in message.content:
             await message.channel.send(message.author.name + " why are you gay")
+        if "hitler" in message.content or "Hitler" in message.content or "adolf" in message.content:
+            await message.channel.send("Nie ma dowodów na to, że Hitler wiedział o Holocauście")
 
-#    if message.author.id == SZYMON_ID:
- #       await message.add_reaction("💩")
+    if len(message.attachments) > 0:
+        if message.attachments[0].filename.endswith(".mp3") and bot.get_channel(SOUNDS_CHANNEL) == message.channel:
+            file_name = message.attachments[0].filename
+            if file_name in sound_names:
+                await message.channel.send("Nazwa pliku zajęta.")
+            else:
+                await message.attachments[0].save(SOUNDS_LOC + file_name)
+                print("Added " + SOUNDS_LOC + file_name)
+                message.channel.send("Dodano " + SOUNDS_LOC + file_name)
+                reload_list()
 
     await bot.process_commands(message)
 
 
-# BACKGROUND TASK
+###############################################################################
+#                               BACKGROUND TASK
+###############################################################################
 async def audio_player_task():
     counter = 0
     booly = True
@@ -70,11 +80,13 @@ async def audio_player_task():
                 audio_source = sound_tuple[1]
                 voice.play(discord.FFmpegPCMAudio(audio_source))
                 queue.pop(0)
+                print("Playing " + audio_source)
         counter += 1
         if counter > 1:
             counter = 0
 
         await asyncio.sleep(1)
+
 
 ###############################################################################
 #                                   LEAVE
@@ -97,8 +109,14 @@ async def leave(ctx):
 #                                   PLAY
 ###############################################################################
 @bot.command(aliases=['p', 'pla'])
-async def play(ctx, mp3: str):
+async def play(ctx, mp3: str, voice_chat_name="none"):
     voice = get(bot.voice_clients, guild=ctx.guild)
+    for channel in ctx.guild.voice_channels:
+        if channel.name == voice_chat_name:
+            if voice and voice.is_connected():
+                await voice.disconnect()
+                await channel.connect()
+            voice = get(bot.voice_clients, guild=ctx.guild)
 
     for item in id_names_tuples:
         if mp3.isdecimal():
@@ -114,6 +132,7 @@ async def play(ctx, mp3: str):
                 sound_tuple = (voice, audio_source)
                 queue.append(sound_tuple)
 
+
 ###############################################################################
 #                                   RANDOM
 ###############################################################################
@@ -123,6 +142,7 @@ async def random(ctx):
     audio_source = SOUNDS_LOC + choice(sound_names)
     sound_tuple = (voice, audio_source)
     queue.append(sound_tuple)
+
 
 ###############################################################################
 #                                   LIST
@@ -187,8 +207,22 @@ async def stop(ctx):
 async def volume(ctx, value: int):
     voice = get(bot.voice_clients, guild=ctx.guild)
     voice.source = discord.PCMVolumeTransformer(voice.source)
-    voice.source.volume = value/100
+    voice.source.volume = value / 100
     await ctx.send("Zmieniono głośność na {}%".format(value))
+    print("Volume changed to {}%".format(value))
+
+
+###############################################################################
+#                                REMOVE FILE
+###############################################################################
+@bot.command(aliases=['del', 'delete'])
+async def remove(ctx, file_name):
+    if os.path.isfile(os.path.join(SOUNDS_LOC, file_name)):
+        os.remove(os.path.join(SOUNDS_LOC, file_name))
+        print("Removed " + SOUNDS_LOC + file_name)
+        reload_list()
+    else:
+        ctx.send("Nie ma takiego pliku")
 
 
 ###############################################################################
@@ -201,12 +235,14 @@ async def help(ctx):
     embed.add_field(name='play, p, pla', value='Nazwa pliku bez.mp3', inline=False)
     embed.add_field(name='list, l, lis', value='Lista dźwięków', inline=False)
     embed.add_field(name='random,ran, los', value='Losowy dźwięk', inline=False)
+    embed.add_field(name='remove,delete, del', value='np. delete test.mp3', inline=False)
     embed.add_field(name='volume', value='Zmiana głośności', inline=False)
     embed.add_field(name='leave, dc, disconnect', value='Koniec dobrej zabawy', inline=False)
     embed.add_field(name='pause, pau, pa', value='Wstrzymanie dobrej zabawy', inline=False)
     embed.add_field(name='resume, r , res', value='Wznowienie dobrej zabawy', inline=False)
     embed.add_field(name='stop,s, sto', value='Kiedy "cotentyp" leci zbyt długo', inline=False)
     await ctx.send(embed=embed)
+
 
 ###############################################################################
 #                                 ENSURE_VOICE
@@ -220,5 +256,24 @@ async def ensure_voice(ctx):
             await ctx.author.voice.channel.connect()
         else:
             await ctx.send("Nie jesteś połączony.")
+
+
+###############################################################################
+#                               RELOAD LIST
+###############################################################################
+def reload_list():
+    sound_names.clear()
+    id_names_tuples.clear()
+
+    for entry in os.listdir(SOUNDS_LOC):
+        if os.path.isfile(os.path.join(SOUNDS_LOC, entry)):
+            sound_names.append(entry)
+    sound_names.sort()
+    counter = 0
+    for entry in sound_names:
+        counter += 1
+        id_names_tuples.append((counter, entry))
+    print("List reloaded")
+
 
 bot.run(BOT_TOKEN)
