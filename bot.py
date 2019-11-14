@@ -15,6 +15,8 @@ SZYMON_ID = 200245153586216960
 TOMASZ_ID = 200245734572818432
 PIECZOR_ID = 200303039863717889
 SOUNDS_CHANNEL = 594937312736182313
+# real channel 594937312736182313
+# test channel 642374894562050059
 
 # SET PREFIX, REMOVE HELP AND LIST COMMANDS TO REPLACE IT LATER
 bot = commands.Bot(command_prefix=BOT_PREFIX)
@@ -226,6 +228,19 @@ async def remove(ctx, file_name):
 
 
 ###############################################################################
+#                                RENAME FILE
+###############################################################################
+@bot.command(aliases=['ren'])
+async def rename(ctx, old_name, new_name):
+    if os.path.isfile(os.path.join(SOUNDS_LOC, old_name)):
+        os.rename(os.path.join(SOUNDS_LOC, old_name),os.path.join(SOUNDS_LOC, new_name))
+        print("Renamed: " + SOUNDS_LOC + old_name + " to: " + new_name)
+        reload_list()
+    else:
+        ctx.send("Nie ma takiego pliku")
+
+
+###############################################################################
 #                                   HELP
 ###############################################################################
 @bot.command()
@@ -236,6 +251,7 @@ async def help(ctx):
     embed.add_field(name='list, l, lis', value='Lista dźwięków', inline=False)
     embed.add_field(name='random,ran, los', value='Losowy dźwięk', inline=False)
     embed.add_field(name='remove,delete, del', value='np. delete test.mp3', inline=False)
+    embed.add_field(name='rename, ren', value='rename stara_nazwa.mp3 nowa_nazwa.mp3', inline=False)
     embed.add_field(name='volume', value='Zmiana głośności', inline=False)
     embed.add_field(name='leave, dc, disconnect', value='Koniec dobrej zabawy', inline=False)
     embed.add_field(name='pause, pau, pa', value='Wstrzymanie dobrej zabawy', inline=False)
