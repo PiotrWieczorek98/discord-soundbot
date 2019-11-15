@@ -10,7 +10,7 @@ from random import choice
 BOT_TOKEN = 'NTk1NzIxNjQ5NzE5MDgzMDA4.Xba5Yw.kEDMTabHk8DHXzMFdLQLXrDsi7k'
 BOT_PREFIX = 'boi '
 SOUNDS_LOC = "sounds/"
-TIMEOUT = 120
+TIMEOUT = 60 * 30
 SZYMON_ID = 200245153586216960
 TOMASZ_ID = 200245734572818432
 PIECZOR_ID = 200303039863717889
@@ -45,6 +45,7 @@ async def on_ready():
 ###############################################################################
 @bot.event
 async def on_message(message):
+    # REACT TO SOME MESSAGES
     if bot.user.id != message.author.id:
         if "szymon" in message.content or "Szymon" in message.content:
             await message.channel.send("Szymon more like pedał hehe")
@@ -53,6 +54,7 @@ async def on_message(message):
         if "hitler" in message.content or "Hitler" in message.content or "adolf" in message.content:
             await message.channel.send("Nie ma dowodów na to, że Hitler wiedział o Holocauście")
 
+    # IF FILE WAS ATTACHED TO MESSAGE
     if len(message.attachments) > 0:
         if message.attachments[0].filename.endswith(".mp3") and bot.get_channel(SOUNDS_CHANNEL) == message.channel:
             file_name = message.attachments[0].filename
@@ -60,8 +62,8 @@ async def on_message(message):
                 await message.channel.send("Nazwa pliku zajęta.")
             else:
                 await message.attachments[0].save(SOUNDS_LOC + file_name)
+                await message.add_reaction("👌")
                 print("Added " + SOUNDS_LOC + file_name)
-                await message.channel.send("Dodano " + file_name)
                 reload_list()
 
     await bot.process_commands(message)
@@ -72,7 +74,6 @@ async def on_message(message):
 ###############################################################################
 async def audio_player_task():
     counter = 0
-    booly = True
     while not bot.is_closed():
         if len(queue) > 0:
             sound_tuple = queue[0]
@@ -82,9 +83,11 @@ async def audio_player_task():
                 audio_source = sound_tuple[1]
                 voice.play(discord.FFmpegPCMAudio(audio_source))
                 queue.pop(0)
+                counter = 0
                 print("Playing " + audio_source)
+
         counter += 1
-        if counter > 1:
+        if counter > TIMEOUT:
             counter = 0
 
         await asyncio.sleep(1)
@@ -100,11 +103,11 @@ async def leave(ctx):
 
     if voice and voice.is_connected():
         await voice.disconnect()
-        print(f"The bot has left {channel}")
         await ctx.send(f"To nara")
+        print(f"The bot has left {channel}")
     else:
+        await ctx.send("Retard alert: bota nie ma na channelu")
         print("Bot was told to leave voice channel, but was not in one")
-        await ctx.send("Nawet mnie tam nie ma dzbanie")
 
 
 ###############################################################################
@@ -168,10 +171,10 @@ async def pause(ctx):
     voice = get(bot.voice_clients, guild=ctx.guild)
 
     if voice and voice.is_playing():
-        await ctx.send(":thumbup:")
+        await ctx.message.add_reaction(":thumbup:")
         voice.pause()
     else:
-        await ctx.send("Coś się popsuło")
+        await ctx.send("Retard alert: Nie jest grane")
 
 
 ###############################################################################
@@ -182,10 +185,10 @@ async def resume(ctx):
     voice = get(bot.voice_clients, guild=ctx.guild)
 
     if voice and voice.is_paused():
-        await ctx.send(":thumbup:")
+        await ctx.message.add_reaction(":thumbup:")
         voice.resume()
     else:
-        await ctx.send("Coś się popsuło")
+        await ctx.send("Retard alert: Nie ma pauzy")
 
 
 ###############################################################################
@@ -196,10 +199,10 @@ async def stop(ctx):
     voice = get(bot.voice_clients, guild=ctx.guild)
 
     if voice and voice.is_playing():
-        await ctx.send(":thumbup:")
+        await ctx.message.add_reaction(":thumbup:")
         voice.stop()
     else:
-        await ctx.send("Coś się popsuło")
+        await ctx.send("Retard alert: Nic nie jest grane")
 
 
 ###############################################################################
@@ -221,10 +224,11 @@ async def volume(ctx, value: int):
 async def remove(ctx, file_name):
     if os.path.isfile(os.path.join(SOUNDS_LOC, file_name)):
         os.remove(os.path.join(SOUNDS_LOC, file_name))
+        await ctx.send(f"Usunięto: " + file_name)
         print("Removed " + SOUNDS_LOC + file_name)
         reload_list()
     else:
-        ctx.send("Nie ma takiego pliku")
+        ctx.send("Retard alert: Nie ma takiego pliku")
 
 
 ###############################################################################
@@ -234,10 +238,11 @@ async def remove(ctx, file_name):
 async def rename(ctx, old_name, new_name):
     if os.path.isfile(os.path.join(SOUNDS_LOC, old_name)):
         os.rename(os.path.join(SOUNDS_LOC, old_name),os.path.join(SOUNDS_LOC, new_name))
+        await ctx.send(f"Zmieniono nazwę z: " + SOUNDS_LOC + old_name + " na: " + new_name)
         print("Renamed: " + SOUNDS_LOC + old_name + " to: " + new_name)
         reload_list()
     else:
-        ctx.send("Nie ma takiego pliku")
+        ctx.send("Retard alert: Nie ma takiego pliku")
 
 
 ###############################################################################
@@ -261,7 +266,7 @@ async def help(ctx):
 
 
 ###############################################################################
-#                                 ENSURE_VOICE
+#                             ENSURE_VOICE
 ###############################################################################
 @play.before_invoke
 @random.before_invoke
@@ -271,7 +276,7 @@ async def ensure_voice(ctx):
         if ctx.author.voice:
             await ctx.author.voice.channel.connect()
         else:
-            await ctx.send("Nie jesteś połączony.")
+            await ctx.send("Retard alert, Nie jesteś połączony.")
 
 
 ###############################################################################
@@ -284,8 +289,10 @@ def reload_list():
     for entry in os.listdir(SOUNDS_LOC):
         if os.path.isfile(os.path.join(SOUNDS_LOC, entry)):
             sound_names.append(entry)
+
     sound_names.sort()
     counter = 0
+
     for entry in sound_names:
         counter += 1
         id_names_tuples.append((counter, entry))
