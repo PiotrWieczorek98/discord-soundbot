@@ -1,4 +1,3 @@
-import io
 import discord
 from discord.ext import commands
 from discord.utils import get
@@ -10,6 +9,7 @@ from random import choice
 BOT_TOKEN = 'NTk1NzIxNjQ5NzE5MDgzMDA4.Xba5Yw.kEDMTabHk8DHXzMFdLQLXrDsi7k'
 BOT_PREFIX = 'boi '
 SOUNDS_LOC = "sounds/"
+TEXT_LOC = "files/"
 TIMEOUT = 60 * 30
 SZYMON_ID = 200245153586216960
 TOMASZ_ID = 200245734572818432
@@ -27,18 +27,17 @@ bot.remove_command("list")
 queue = []
 sound_names = []
 id_names_tuples = []
-
+korwin_list = []
 
 # WHEN READY CHANGE STATUS AND CREATE BACKGROUND TASK
 @bot.event
 async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(BOT_PREFIX))
     bot.bg_task = bot.loop.create_task(audio_player_task())
-    print("Logged in as: " + bot.user.name + "\n")
-
-    # LOAD SOUNDS
+    print("\nLogged in as: " + bot.user.name + "\n")
+    # LOAD SOUNDS AND TEXTS
     reload_list()
-
+    korwin_load(korwin_list)
 
 ###############################################################################
 #                                 ON MESSAGE
@@ -53,6 +52,9 @@ async def on_message(message):
             await message.channel.send(message.author.name + " why are you gay")
         if "hitler" in message.content or "Hitler" in message.content or "adolf" in message.content:
             await message.channel.send("Nie ma dowodów na to, że Hitler wiedział o Holocauście")
+        if "korwin powiedz coś" in message.content or "Korwin powiedz coś" in message.content \
+                or "korwin powiedz cos" in message.content or "Korwin powiedz cos" in message.content:
+            await korwin_generator(message)
 
     # IF FILE WAS ATTACHED TO MESSAGE
     if len(message.attachments) > 0:
@@ -98,13 +100,12 @@ async def audio_player_task():
 ###############################################################################
 @bot.command(aliases=['dc', 'disconnect'])
 async def leave(ctx):
-    channel = ctx.message.author.voice.channel
     voice = get(bot.voice_clients, guild=ctx.guild)
 
     if voice and voice.is_connected():
         await voice.disconnect()
         await ctx.send(f"To nara")
-        print(f"The bot has left {channel}")
+        print(f"The bot was told  to leave")
     else:
         await ctx.send("Retard alert: bota nie ma na channelu")
         print("Bot was told to leave voice channel, but was not in one")
@@ -296,7 +297,30 @@ def reload_list():
     for entry in sound_names:
         counter += 1
         id_names_tuples.append((counter, entry))
-    print("List reloaded")
+    print("Sounds list loaded")
+
+
+###############################################################################
+#                              KORWIN GENERATOR
+###############################################################################
+def korwin_load(kor_list):
+    counter = 0
+    for entry in os.listdir(TEXT_LOC):
+        if os.path.isfile(os.path.join(TEXT_LOC, entry)):
+            with open(TEXT_LOC + str(counter) + ".txt", encoding='utf-8') as fp:
+                kor_list.append(fp.read().splitlines())
+                counter += 1
+    print("Korwin list loaded")
+
+
+async def korwin_generator(message):
+    kor1 = choice(korwin_list[0])
+    kor2 = choice(korwin_list[1])
+    kor3 = choice(korwin_list[2])
+    kor4 = choice(korwin_list[3])
+    kor5 = choice(korwin_list[4])
+    kor6 = choice(korwin_list[5])
+    await message.channel.send(kor1 + kor2 + kor3 + kor4 + kor5 + kor6)
 
 
 bot.run(BOT_TOKEN)
