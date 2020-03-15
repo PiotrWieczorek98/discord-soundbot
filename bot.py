@@ -45,20 +45,14 @@ async def on_ready():
 async def on_message(message):
     # REACT TO SOME MESSAGES
     if bot.user.id != message.author.id:
-        if "szymon" in message.content \
-         or "Szymon" in message.contentor \
-         or "Badura" in message.content \
-         or "badura" in message.content:
+        if "szymon" in message.content or "Szymon" in message.contentor or "Badura" in message.content or "badura" in message.content:
             badura = ["Szymon more like pedał hehe",
                       "Badura kawał knura",
                       "Zbadurzone perfekcyjnie"]
             await message.channel.send(choice(badura))
         if "gachi" in message.content:
             await message.channel.send(message.author.name + " why are you gay")
-        if "hitler" in message.content \
-           or "Hitler" in message.content \
-           or "adolf" in message.content \
-           or "Adolf" in message.content:
+        if "hitler" in message.content or "Hitler" in message.content or "adolf" in message.content or "Adolf" in message.content:
             hitler = ["Nie ma dowodów na to, że Hitler wiedział o Holocauście",
                       "Nie można zaprzeczyć, że dbał o swój kraj",
                       "Ja, 6 milionów, fafnoście od razu",
