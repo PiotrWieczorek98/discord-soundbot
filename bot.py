@@ -15,7 +15,6 @@ SZYMON_ID = 200245153586216960
 TOMASZ_ID = 200245734572818432
 PIECZOR_ID = 200303039863717889
 SOUNDS_CHANNEL = 594937312736182313
-# real channel 594937312736182313
 # test channel 642374894562050059
 
 # SET PREFIX, REMOVE HELP AND LIST COMMANDS TO REPLACE IT LATER
@@ -23,7 +22,7 @@ bot = commands.Bot(command_prefix=BOT_PREFIX)
 bot.remove_command("help")
 bot.remove_command("list")
 
-# CREATE LISTS
+# DEFINE LISTS
 queue = []
 sound_names = []
 id_names_tuples = []
@@ -46,14 +45,26 @@ async def on_ready():
 async def on_message(message):
     # REACT TO SOME MESSAGES
     if bot.user.id != message.author.id:
-        if "szymon" in message.content or "Szymon" in message.content:
-            await message.channel.send("Szymon more like pedał hehe")
+        if "szymon" in message.content \
+         or "Szymon" in message.contentor \
+         or "Badura" in message.content \
+         or "badura" in message.content:
+            badura = ["Szymon more like pedał hehe",
+                      "Badura kawał knura",
+                      "Zbadurzone perfekcyjnie"]
+            await message.channel.send(choice(badura))
         if "gachi" in message.content:
             await message.channel.send(message.author.name + " why are you gay")
-        if "hitler" in message.content or "Hitler" in message.content or "adolf" in message.content:
-            await message.channel.send("Nie ma dowodów na to, że Hitler wiedział o Holocauście")
-        if "korwin powiedz coś" in message.content or "Korwin powiedz coś" in message.content \
-                or "korwin powiedz cos" in message.content or "Korwin powiedz cos" in message.content:
+        if "hitler" in message.content \
+           or "Hitler" in message.content \
+           or "adolf" in message.content \
+           or "Adolf" in message.content:
+            hitler = ["Nie ma dowodów na to, że Hitler wiedział o Holocauście",
+                      "Nie można zaprzeczyć, że dbał o swój kraj",
+                      "Ja, 6 milionów, fafnoście od razu",
+                      "Z raz obranej drogi nie zawracaj w tył. Nie opuszczaj wiary - w dumę białej rasy"]
+            await message.channel.send(choice(hitler))
+        if "korwin" in message.content:
             await korwin_generator(message)
 
     # IF FILE WAS ATTACHED TO MESSAGE
@@ -104,11 +115,7 @@ async def leave(ctx):
 
     if voice and voice.is_connected():
         await voice.disconnect()
-        await ctx.send(f"To nara")
         print(f"The bot was told  to leave")
-    else:
-        await ctx.send("Retard alert: bota nie ma na channelu")
-        print("Bot was told to leave voice channel, but was not in one")
 
 
 ###############################################################################
