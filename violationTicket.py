@@ -1,13 +1,11 @@
 import globales
+import os
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 from datetime import date
-import os
 import discord
 from discord.ext import commands
-from discord.utils import get
-from random import choice
 
 
 def get_ticket(violation_list: [str], user_from: str, user_to: str):
@@ -54,9 +52,43 @@ def get_ticket(violation_list: [str], user_from: str, user_to: str):
     ticket.save(globales.IMAGES_LOC + "ticket.png")
 
 
+def load_list():
+    if os.path.isfile(globales.FILES_LOC + "tickets.txt"):
+        with open(globales.FILES_LOC + "tickets.txt", encoding='utf-8') as fp:
+            lines = fp.read().splitlines()
+            for entry in lines:
+                line_tuple = tuple(entry.split(" "))
+                globales.ticket_counter.append(line_tuple)
+    increment_counter(200303039863717889)
+
+
+def increment_counter(user_id: int):
+    found = False
+    file = open(globales.FILES_LOC + "tickets.txt", "w", encoding='utf-8')
+    for entry in globales.ticket_counter:
+        if user_id == int(entry[0]):
+            found = True
+            current = int(entry[1])
+            current += 1
+            entry = (entry[0], current)
+        file.write(str(entry[0]) + " " + str(entry[1]) + "\n")
+    file.close()
+    if not found:
+        file = open(globales.FILES_LOC + "tickets.txt", "a", encoding='utf-8')
+        file.write(str(user_id) + " 0\n")
+
+
+def get_number_of_violations(user_id: int):
+    for entry in globales.ticket_counter:
+        if user_id == int(entry[0]):
+            return entry[1]
+    return None
+
+
 class Ticket(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        load_list()
 
     @commands.command()
     async def ticket(self, ctx, *arg):
@@ -71,13 +103,14 @@ class Ticket(commands.Cog):
         target_id = target_id.replace("@", "")
         target_id = target_id.replace("!", "")
         target_id = int(target_id)
+        increment_counter(target_id)
 
-        target = self.bot.get_user(target_id).name
+        target_name = self.bot.get_user(target_id).name
+        get_ticket(v_list, ctx.message.author.name, target_name)
 
-        get_ticket(v_list, ctx.message.author.name, target)
-
+        number_of_violations = get_number_of_violations(target_id)
         await ctx.send(file=discord.File(globales.IMAGES_LOC + 'ticket.png'))
-
+        await ctx.send("To twoje " + number_of_violations + " przewinienie.")
 
 def setup(bot):
     bot.add_cog(Ticket(bot))

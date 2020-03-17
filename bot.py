@@ -6,7 +6,6 @@ from random import choice
 import korwinGenerator
 import globales
 import basicCommands
-import violationTicket
 
 # SET PREFIX, REMOVE COMMANDS TO REPLACE IT LATER, LOAD FILES
 bot = commands.Bot(command_prefix=globales.BOT_PREFIX)

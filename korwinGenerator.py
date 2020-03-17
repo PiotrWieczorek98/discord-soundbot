@@ -7,9 +7,9 @@ korwin_list = []
 
 def korwin_load():
     counter = 0
-    for entry in os.listdir(globales.TEXT_LOC):
-        if os.path.isfile(os.path.join(globales.TEXT_LOC, entry)):
-            with open(globales.TEXT_LOC + str(counter) + ".txt", encoding='utf-8') as fp:
+    for entry in os.listdir(globales.KORWIN_LOC):
+        if os.path.isfile(os.path.join(globales.KORWIN_LOC, entry)):
+            with open(globales.KORWIN_LOC + str(counter) + ".txt", encoding='utf-8') as fp:
                 korwin_list.append(fp.read().splitlines())
                 counter += 1
     print("Korwin generator loaded")
