@@ -31,7 +31,7 @@ def get_ticket(violation_list: [str], user_from: str, user_to: str):
     # Write text
     draw = ImageDraw.Draw(ticket)
     # font = ImageFont.truetype(<font-file>, <font-size>)
-    font = ImageFont.truetype("calibrib.ttf", 45)
+    font = ImageFont.truetype(globales.FONTS_LOC + "calibrib.ttf", 45)
     # draw.text((x, y),"Sample Text",(r,g,b))
     # Time:
     draw.text((275, 480), date.today().strftime("%d/%m/%Y"), (0, 0, 0), font=font)

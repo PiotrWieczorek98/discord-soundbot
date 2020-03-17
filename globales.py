@@ -1,6 +1,7 @@
 SOUNDS_LOC = "sounds/"
 TEXT_LOC = "files/"
 IMAGES_LOC = "images/"
+FONTS_LOC = "fonts/"
 queue = []
 sound_names = []
 id_names_tuples = []
