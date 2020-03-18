@@ -1,5 +1,4 @@
 import globalVar
-import os
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -74,6 +73,8 @@ def change_counter(user_id: int, increment: bool):
             else:
                 changed = (globalVar.ticket_counter[i][0], 0)
             globalVar.ticket_counter[i] = changed
+
+    # Add new id if not found
     if not found and increment:
         globalVar.ticket_counter.append((user_id, 1))
         file = open(globalVar.files_loc + "tickets.txt", "a", encoding='utf-8')
@@ -91,6 +92,34 @@ def get_number_of_violations(user_id: int):
         if user_id == entry[0]:
             return entry[1]
     return 0
+
+
+async def banishment(target, target_id):
+    # Find user
+    for i in range(len(globalVar.ticket_counter)):
+        if target_id == globalVar.ticket_counter[i][0]:
+            changed = (globalVar.ticket_counter[i][0], 0)
+            globalVar.ticket_counter[i] = changed
+
+    # Rewrite file after update
+    file = open(globalVar.files_loc + "tickets.txt", "w", encoding='utf-8')
+    for entry in globalVar.ticket_counter:
+        file.write(str(entry[0]) + " " + str(entry[1]) + "\n")
+
+    # Add role
+    role = target.guild.get_role(globalVar.banished_role)
+    await target.add_roles(role)
+    # Add to timer
+    found = False
+    for i in range(len(globalVar.banished)):
+        if target == globalVar.banished[i][0]:
+            globalVar.banished[i] = (target, 0)
+            found = True
+
+    if not found:
+        globalVar.banished.append((target, 0))
+
+    print("Banished " + str(target.display_name))
 
 
 class Ticket(commands.Cog):
@@ -112,30 +141,39 @@ class Ticket(commands.Cog):
         target_id = target_id.replace("!", "")
         target_id = int(target_id)
 
-        target_name = self.bot.get_user(target_id).name
+        guild  = self.bot.get_guild(globalVar.guild)
+        target = guild.get_member(target_id)
         change_counter(target_id, True)
+        get_ticket(v_list, ctx.message.author.name, target.display_name)
         number_of_violations = get_number_of_violations(target_id)
-        get_ticket(v_list, ctx.message.author.name, target_name)
 
+        print("id: " + str(target_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
         await ctx.send(file=discord.File(globalVar.images_loc + 'ticket.png'))
         await ctx.send("To twoje " + str(number_of_violations) + " przewinienie.")
+        if number_of_violations >= 3:
+            await ctx.send("Z powodu 3 naruszen dostajesz banicje na 30min.")
+            await banishment(target, target_id)
 
     @commands.command()
     async def increment(self, ctx, user_id):
         change_counter(int(user_id), True)
         number_of_violations = get_number_of_violations(int(user_id))
+        print("id: " + str(user_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
         await ctx.send("id: " + str(user_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
 
     @commands.command()
     async def decrement(self, ctx, user_id):
         change_counter(int(user_id), False)
         number_of_violations = get_number_of_violations(int(user_id))
+        print("id: " + str(user_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
         await ctx.send("id: " + str(user_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
 
     @commands.command()
     async def check(self, ctx, user_id):
         number_of_violations = get_number_of_violations(int(user_id))
+        print("id: " + str(user_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
         await ctx.send("id: " + str(user_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
+
 
 def setup(bot):
     bot.add_cog(Ticket(bot))

@@ -21,8 +21,12 @@ if __name__ == '__main__':
 
 # BACKGROUND TASK
 async def audio_task():
+    counter = 0
     while not bot.is_closed():
         queue = globalVar.queue
+        counter += 1
+
+        # Audio Task
         if len(queue) > 0:
             sound_tuple = queue[0]
             voice = sound_tuple[0]
@@ -33,6 +37,17 @@ async def audio_task():
                 globalVar.queue.pop()
                 print("Played " + audio_source)
 
+        # Banishment
+        for i in range(len(globalVar.banished)):
+            incremented = (globalVar.banished[i][0], globalVar.banished[i][1] + 1)
+            # Check if penalty time passed
+            if incremented[1] >= 60 * 30:
+                globalVar.banished.pop(i)
+                role = incremented[0].guild.get_role(globalVar.banished_role)
+                await incremented[0].remove_roles(role)
+                print("Removed from banishment " + str(incremented[0].display_name))
+            else:
+                globalVar.banished[i] = incremented
         await asyncio.sleep(1)
 
 
