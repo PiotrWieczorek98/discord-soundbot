@@ -3,23 +3,23 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 from random import choice
-import globales
+import globalVar
 
 
 def reload_list():
-    globales.sound_names.clear()
-    globales.id_names_tuples.clear()
+    globalVar.mp3_names.clear()
+    globalVar.id_names_tuples.clear()
 
-    for entry in os.listdir(globales.SOUNDS_LOC):
-        if os.path.isfile(os.path.join(globales.SOUNDS_LOC, entry)):
-            globales.sound_names.append(entry)
+    for entry in os.listdir(globalVar.sounds_loc):
+        if os.path.isfile(os.path.join(globalVar.sounds_loc, entry)):
+            globalVar.mp3_names.append(entry)
 
-    globales.sound_names.sort()
+    globalVar.mp3_names.sort()
     counter = 0
 
-    for entry in globales.sound_names:
+    for entry in globalVar.mp3_names:
         counter += 1
-        globales.id_names_tuples.append((counter, entry))
+        globalVar.id_names_tuples.append((counter, entry))
     print("Sounds loaded")
 
 
@@ -56,29 +56,29 @@ class Basic(commands.Cog):
                     await channel.connect()
                 voice = get(self.bot.voice_clients, guild=ctx.guild)
 
-        for entry in globales.id_names_tuples:
+        for entry in globalVar.id_names_tuples:
             if mp3.isdecimal():
                 if int(mp3) in entry:
-                    audio_source = globales.SOUNDS_LOC + entry[1]
+                    audio_source = globalVar.sounds_loc + entry[1]
                     sound_tuple = (voice, audio_source)
-                    globales.queue.append(sound_tuple)
+                    globalVar.queue.append(sound_tuple)
                     print("queued {}".format(entry[1]))
             else:
                 if not mp3.endswith(".mp3"):
                     mp3 += ".mp3"
                 if mp3 in entry:
-                    audio_source = globales.SOUNDS_LOC + entry[1]
+                    audio_source = globalVar.sounds_loc + entry[1]
                     sound_tuple = (voice, audio_source)
-                    globales.queue.append(sound_tuple)
+                    globalVar.queue.append(sound_tuple)
                     print("queued {}".format(entry[1]))
 
     @commands.command(aliases=['ran', 'los'])
     async def random(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
-        entry = choice(globales.sound_names)
-        audio_source = globales.SOUNDS_LOC + entry
+        entry = choice(globalVar.mp3_names)
+        audio_source = globalVar.sounds_loc + entry
         sound_tuple = (voice, audio_source)
-        globales.queue.append(sound_tuple)
+        globalVar.queue.append(sound_tuple)
         print("queued {}".format(entry[1]))
 
     @commands.command(aliases=['r', 'res'])
@@ -111,20 +111,20 @@ class Basic(commands.Cog):
 
     @commands.command(aliases=['ren'])
     async def rename(self, ctx, old_name, new_name):
-        if os.path.isfile(os.path.join(globales.SOUNDS_LOC, old_name)):
-            os.rename(os.path.join(globales.SOUNDS_LOC, old_name), os.path.join(globales.SOUNDS_LOC, new_name))
-            await ctx.send(f"Zmieniono nazwę z: " + globales.SOUNDS_LOC + old_name + " na: " + new_name)
-            print("Renamed: " + globales.SOUNDS_LOC + old_name + " to: " + new_name)
+        if os.path.isfile(os.path.join(globalVar.sounds_loc, old_name)):
+            os.rename(os.path.join(globalVar.sounds_loc, old_name), os.path.join(globalVar.sounds_loc, new_name))
+            await ctx.send(f"Zmieniono nazwę z: " + globalVar.sounds_loc + old_name + " na: " + new_name)
+            print("Renamed: " + globalVar.sounds_loc + old_name + " to: " + new_name)
             reload_list()
         else:
             ctx.send("Retard alert: Nie ma takiego pliku")
 
     @commands.command(aliases=['del', 'delete'])
     async def remove(self, ctx, file_name):
-        if os.path.isfile(os.path.join(globales.SOUNDS_LOC, file_name)):
-            os.remove(os.path.join(globales.SOUNDS_LOC, file_name))
+        if os.path.isfile(os.path.join(globalVar.sounds_loc, file_name)):
+            os.remove(os.path.join(globalVar.sounds_loc, file_name))
             await ctx.send(f"Usunięto: " + file_name)
-            print("Removed " + globales.SOUNDS_LOC + file_name)
+            print("Removed " + globalVar.sounds_loc + file_name)
             reload_list()
         else:
             ctx.send("Retard alert: Nie ma takiego pliku")
@@ -132,7 +132,7 @@ class Basic(commands.Cog):
     @commands.command(aliases=['l', 'sounds'])
     async def list(self, ctx):
         sounds = "```css\n[Lista Dźwięków]\n"
-        for entry in globales.id_names_tuples:
+        for entry in globalVar.id_names_tuples:
             sounds += str(entry[0]) + ". " + entry[1] + "\n"
 
         sounds += "\n```"
@@ -142,10 +142,11 @@ class Basic(commands.Cog):
     async def help(self, ctx):
         embed = discord.Embed(colour=discord.Colour.orange())
         embed.set_author(name='Help')
-        embed.add_field(name='play, p, pla', value='Nazwa pliku bez.mp3', inline=False)
+        embed.add_field(name='play, p, pla', value='Nazwa albo numer', inline=False)
         embed.add_field(name='list, l, lis', value='Lista dźwięków', inline=False)
         embed.add_field(name='random,ran, los', value='Losowy dźwięk', inline=False)
-        embed.add_field(name='remove,delete, del', value='np. delete test.mp3', inline=False)
+        embed.add_field(name='ticket', value='ticket przewinienie @ping', inline=False)
+        embed.add_field(name='remove,delete, del', value='delete nazwa.mp3', inline=False)
         embed.add_field(name='rename, ren', value='rename stara_nazwa.mp3 nowa_nazwa.mp3', inline=False)
         embed.add_field(name='volume', value='Zmiana głośności', inline=False)
         embed.add_field(name='leave, dc, disconnect', value='Koniec dobrej zabawy', inline=False)

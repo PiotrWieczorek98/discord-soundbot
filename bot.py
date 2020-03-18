@@ -4,11 +4,11 @@ import asyncio
 from random import choice
 
 import korwinGenerator
-import globales
+import globalVar
 import basicCommands
 
 # SET PREFIX, REMOVE COMMANDS TO REPLACE IT LATER, LOAD FILES
-bot = commands.Bot(command_prefix=globales.BOT_PREFIX)
+bot = commands.Bot(command_prefix=globalVar.BOT_PREFIX)
 bot.remove_command("help")
 bot.remove_command("list")
 korwinGenerator.korwin_load()
@@ -22,7 +22,7 @@ if __name__ == '__main__':
 # BACKGROUND TASK
 async def audio_task():
     while not bot.is_closed():
-        queue = globales.queue
+        queue = globalVar.queue
         if len(queue) > 0:
             sound_tuple = queue[0]
             voice = sound_tuple[0]
@@ -30,7 +30,7 @@ async def audio_task():
             if not voice.is_playing():
                 audio_source = sound_tuple[1]
                 voice.play(discord.FFmpegPCMAudio(audio_source))
-                globales.queue.pop()
+                globalVar.queue.pop()
                 print("Played " + audio_source)
 
         await asyncio.sleep(1)
@@ -39,7 +39,7 @@ async def audio_task():
 # WHEN READY CHANGE STATUS AND CREATE BACKGROUND TASK
 @bot.event
 async def on_ready():
-    await bot.change_presence(status=discord.Status.online, activity=discord.Game(globales.BOT_PREFIX))
+    await bot.change_presence(status=discord.Status.online, activity=discord.Game(globalVar.BOT_PREFIX))
     bot.bg_task = bot.loop.create_task(audio_task())
     print("\nLogged in as: " + bot.user.name + "\n")
 
@@ -77,14 +77,14 @@ async def on_message(message):
     if len(message.attachments) > 0:
         if message.attachments[0].filename.endswith(".mp3"):
             file_name = message.attachments[0].filename
-            if file_name in globales.sound_names:
+            if file_name in globalVar.mp3_names:
                 await message.channel.send("Nazwa pliku zajęta.")
             else:
-                await message.attachments[0].save(globales.SOUNDS_LOC + file_name)
+                await message.attachments[0].save(globalVar.sounds_loc + file_name)
                 await message.add_reaction("👌")
-                print("Added " + globales.SOUNDS_LOC + file_name)
+                print("Added " + globalVar.sounds_loc + file_name)
                 basicCommands.reload_list()
 
     await bot.process_commands(message)
 
-bot.run(globales.BOT_TOKEN)
+bot.run(globalVar.BOT_TOKEN)

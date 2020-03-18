@@ -1,11 +1,11 @@
-SOUNDS_LOC = "sounds/"
-FILES_LOC = "files/"
-IMAGES_LOC = "images/"
-FONTS_LOC = "fonts/"
-KORWIN_LOC = "korwin/"
+sounds_loc = "sounds/"
+files_loc = "files/"
+images_loc = "images/"
+fonts_loc = "fonts/"
+korwin_loc = "korwin/"
 
 queue = []
-sound_names = []
+mp3_names = []
 id_names_tuples = []
 ticket_counter = []
 

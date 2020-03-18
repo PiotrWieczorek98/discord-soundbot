@@ -1,15 +1,15 @@
 import os
 from random import choice
-import globales
+import globalVar
 
 korwin_list = []
 
 
 def korwin_load():
     counter = 0
-    for entry in os.listdir(globales.KORWIN_LOC):
-        if os.path.isfile(os.path.join(globales.KORWIN_LOC, entry)):
-            with open(globales.KORWIN_LOC + str(counter) + ".txt", encoding='utf-8') as fp:
+    for entry in os.listdir(globalVar.korwin_loc):
+        if os.path.isfile(os.path.join(globalVar.korwin_loc, entry)):
+            with open(globalVar.korwin_loc + str(counter) + ".txt", encoding='utf-8') as fp:
                 korwin_list.append(fp.read().splitlines())
                 counter += 1
     print("Korwin generator loaded")
