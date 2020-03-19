@@ -39,11 +39,11 @@ def get_ticket(violation_list: [str], user_from: str, user_to: str):
     draw.text((275, 628), user_from, (0, 0, 0), font=font)
     # Penalty:
     if counter == 1:
-        penalty = "Warning"
+        penalty = "Cringe"
     elif counter == 2:
         penalty = "Confiscation of respect"
     else:
-        penalty = "Silenced"
+        penalty = "Dick flattening"
     draw.text((275, 677), penalty, (0, 0, 0), font=font)
 
     # Save ticket
