@@ -8,7 +8,7 @@ import globalVar
 
 def reload_list():
     globalVar.mp3_names.clear()
-    globalVar.id_names_tuples.clear()
+    globalVar.mp3_names_with_id.clear()
 
     for entry in os.listdir(globalVar.sounds_loc):
         if os.path.isfile(os.path.join(globalVar.sounds_loc, entry)):
@@ -19,7 +19,7 @@ def reload_list():
 
     for entry in globalVar.mp3_names:
         counter += 1
-        globalVar.id_names_tuples.append((counter, entry))
+        globalVar.mp3_names_with_id.append((counter, entry))
     print("Sounds loaded")
 
 
@@ -56,12 +56,12 @@ class Basic(commands.Cog):
                     await channel.connect()
                 voice = get(self.bot.voice_clients, guild=ctx.guild)
 
-        for entry in globalVar.id_names_tuples:
+        for entry in globalVar.mp3_names_with_id:
             if mp3.isdecimal():
                 if int(mp3) in entry:
                     audio_source = globalVar.sounds_loc + entry[1]
                     sound_tuple = (voice, audio_source)
-                    globalVar.queue.append(sound_tuple)
+                    globalVar.mp3_queue.append(sound_tuple)
                     print("queued {}".format(entry[1]))
             else:
                 if not mp3.endswith(".mp3"):
@@ -69,7 +69,7 @@ class Basic(commands.Cog):
                 if mp3 in entry:
                     audio_source = globalVar.sounds_loc + entry[1]
                     sound_tuple = (voice, audio_source)
-                    globalVar.queue.append(sound_tuple)
+                    globalVar.mp3_queue.append(sound_tuple)
                     print("queued {}".format(entry[1]))
 
     @commands.command(aliases=['ran', 'los'])
@@ -78,7 +78,7 @@ class Basic(commands.Cog):
         entry = choice(globalVar.mp3_names)
         audio_source = globalVar.sounds_loc + entry
         sound_tuple = (voice, audio_source)
-        globalVar.queue.append(sound_tuple)
+        globalVar.mp3_queue.append(sound_tuple)
         print("queued {}".format(entry[1]))
 
     @commands.command(aliases=['r', 'res'])
@@ -132,7 +132,7 @@ class Basic(commands.Cog):
     @commands.command(aliases=['l', 'sounds'])
     async def list(self, ctx):
         sounds = "```css\n[Lista Dźwięków]\n"
-        for entry in globalVar.id_names_tuples:
+        for entry in globalVar.mp3_names_with_id:
             sounds += str(entry[0]) + ". " + entry[1] + "\n"
 
         sounds += "\n```"

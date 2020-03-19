@@ -94,30 +94,19 @@ def get_number_of_violations(user_id: int):
     return 0
 
 
-async def banishment(target, target_id):
-    # Find user
-    for i in range(len(globalVar.ticket_counter)):
-        if target_id == globalVar.ticket_counter[i][0]:
-            changed = (globalVar.ticket_counter[i][0], 0)
-            globalVar.ticket_counter[i] = changed
-
-    # Rewrite file after update
-    file = open(globalVar.files_loc + "tickets.txt", "w", encoding='utf-8')
-    for entry in globalVar.ticket_counter:
-        file.write(str(entry[0]) + " " + str(entry[1]) + "\n")
-
+async def banishment(target, penalty):
     # Add role
     role = target.guild.get_role(globalVar.banished_role)
     await target.add_roles(role)
     # Add to timer
     found = False
-    for i in range(len(globalVar.banished)):
-        if target == globalVar.banished[i][0]:
-            globalVar.banished[i] = (target, 0)
+    for i in range(len(globalVar.banished_users)):
+        if target == globalVar.banished_users[i][0]:
+            globalVar.banished_users[i] = (target, 0, penalty)
             found = True
 
     if not found:
-        globalVar.banished.append((target, 0))
+        globalVar.banished_users.append((target, 0, penalty))
 
     print("Banished " + str(target.display_name))
 
@@ -150,9 +139,10 @@ class Ticket(commands.Cog):
         print("id: " + str(target_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
         await ctx.send(file=discord.File(globalVar.images_loc + 'ticket.png'))
         await ctx.send("To twoje " + str(number_of_violations) + " przewinienie.")
-        if number_of_violations >= 3:
-            await ctx.send("Z powodu 3 naruszen dostajesz banicje na 30min.")
-            await banishment(target, target_id)
+        if number_of_violations % 3 == 0:
+            penalty = number_of_violations/3 * 10
+            await ctx.send("Z powodu " + str(number_of_violations) + " naruszen dostajesz banicje na " + str(penalty) + " min.")
+            await banishment(target, penalty)
 
     @commands.command()
     async def increment(self, ctx, user_id):

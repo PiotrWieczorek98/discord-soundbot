@@ -7,8 +7,11 @@ import korwinGenerator
 import globalVar
 import basicCommands
 
+###############################################################################
+#                                   SETUP
+###############################################################################
 # SET PREFIX, REMOVE COMMANDS TO REPLACE IT LATER, LOAD FILES
-bot = commands.Bot(command_prefix=globalVar.BOT_PREFIX)
+bot = commands.Bot(command_prefix=globalVar.bot_prefix)
 bot.remove_command("help")
 bot.remove_command("list")
 korwinGenerator.korwin_load()
@@ -19,11 +22,13 @@ if __name__ == '__main__':
         bot.load_extension(extension)
 
 
-# BACKGROUND TASK
+###############################################################################
+#                               BACKGROUND TASK
+###############################################################################
 async def audio_task():
     counter = 0
     while not bot.is_closed():
-        queue = globalVar.queue
+        queue = globalVar.mp3_queue
         counter += 1
 
         # Audio Task
@@ -34,27 +39,28 @@ async def audio_task():
             if not voice.is_playing():
                 audio_source = sound_tuple[1]
                 voice.play(discord.FFmpegPCMAudio(audio_source))
-                globalVar.queue.pop()
+                globalVar.mp3_queue.pop()
                 print("Played " + audio_source)
 
         # Banishment
-        for i in range(len(globalVar.banished)):
-            incremented = (globalVar.banished[i][0], globalVar.banished[i][1] + 1)
+        for i in range(len(globalVar.banished_users)):
+            incremented = (globalVar.banished_users[i][0], globalVar.banished_users[i][1] + 1, globalVar.banished_users[i][2])
             # Check if penalty time passed
-            if incremented[1] >= 60 * 30:
-                globalVar.banished.pop(i)
+            if incremented[1] >= incremented[2]:
+                globalVar.banished_users.pop(i)
                 role = incremented[0].guild.get_role(globalVar.banished_role)
                 await incremented[0].remove_roles(role)
                 print("Removed from banishment " + str(incremented[0].display_name))
             else:
-                globalVar.banished[i] = incremented
+                globalVar.banished_users[i] = incremented
+
         await asyncio.sleep(1)
 
 
 # WHEN READY CHANGE STATUS AND CREATE BACKGROUND TASK
 @bot.event
 async def on_ready():
-    await bot.change_presence(status=discord.Status.online, activity=discord.Game(globalVar.BOT_PREFIX))
+    await bot.change_presence(status=discord.Status.online, activity=discord.Game(globalVar.bot_prefix))
     bot.bg_task = bot.loop.create_task(audio_task())
     print("\nLogged in as: " + bot.user.name + "\n")
 
@@ -90,7 +96,7 @@ async def on_message(message):
 
     # IF FILE WAS ATTACHED TO MESSAGE
     if len(message.attachments) > 0:
-        if message.attachments[0].filename.endswith(".mp3"):
+        if message.attachments[0].filename.endswith(".mp3") and message.channel.id == globalVar.sounds_channel_id:
             file_name = message.attachments[0].filename
             if file_name in globalVar.mp3_names:
                 await message.channel.send("Nazwa pliku zajęta.")
@@ -102,4 +108,4 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
-bot.run(globalVar.BOT_TOKEN)
+bot.run(globalVar.bot_token)

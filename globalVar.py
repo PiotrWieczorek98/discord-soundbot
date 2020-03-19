@@ -4,17 +4,17 @@ images_loc = "images/"
 fonts_loc = "fonts/"
 korwin_loc = "korwin/"
 
-queue = []
+mp3_queue = []
 mp3_names = []
-id_names_tuples = []
+mp3_names_with_id = []
 ticket_counter = []
-banished = []
+banished_users = []
 
 # BOT SETTINGS
-BOT_TOKEN = 'NTk1NzIxNjQ5NzE5MDgzMDA4.Xba5Yw.kEDMTabHk8DHXzMFdLQLXrDsi7k'
-BOT_PREFIX = 'boi '
+bot_token = 'NTk1NzIxNjQ5NzE5MDgzMDA4.Xba5Yw.kEDMTabHk8DHXzMFdLQLXrDsi7k'
+bot_prefix = 'boi '
 
-SOUNDS_CHANNEL = 594937312736182313
+sounds_channel_id = 594937312736182313
 
 banished_role = 688352776446541844
 guild = 203114439468253184
