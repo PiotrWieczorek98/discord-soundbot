@@ -4,50 +4,8 @@ from PIL import ImageFont
 from PIL import ImageDraw
 from datetime import date
 import discord
+import re
 from discord.ext import commands
-
-
-def get_ticket(violation_list: [str], user_from: str, user_to: str):
-    background = Image.open(globalVar.images_loc + "background.png")
-    check = Image.open(globalVar.images_loc + "check.png")
-    # Checkboxes
-    violation_types = [("game", 58, 195), ("meme", 419, 195), ("hentai", 782, 195), ("trap", 1052, 195),
-                       ("girl", 58, 245), ("music", 419, 245), ("manga", 782, 245), ("related", 1052, 245)]
-    # Fill checkboxes
-    counter = 0
-    ticket = background.copy()
-    for entry in violation_list:
-        for v_type in violation_types:
-            if entry == v_type[0]:
-                (name, x, y) = v_type
-                area = (x, y)
-                ticket.paste(check, area)
-                counter += 1
-
-    # Write text
-    draw = ImageDraw.Draw(ticket)
-    # font = ImageFont.truetype(<font-file>, <font-size>)
-    font = ImageFont.truetype(globalVar.fonts_loc + "calibrib.ttf", 45)
-    # draw.text((x, y),"Sample Text",(r,g,b))
-    # Time:
-    draw.text((275, 480), date.today().strftime("%d/%m/%Y"), (0, 0, 0), font=font)
-    # Place:
-    draw.text((275, 531), "Wspólnota KK", (0, 0, 0), font=font)
-    # Issued to:
-    draw.text((275, 578), user_to, (0, 0, 0), font=font)
-    # Issued by:
-    draw.text((275, 628), user_from, (0, 0, 0), font=font)
-    # Penalty:
-    if counter == 1:
-        penalty = "Cringe"
-    elif counter == 2:
-        penalty = "Confiscation of respect"
-    else:
-        penalty = "Dick flattening"
-    draw.text((275, 677), penalty, (0, 0, 0), font=font)
-
-    # Save ticket
-    ticket.save(globalVar.images_loc + "ticket.png")
 
 
 def load_list():
@@ -111,6 +69,49 @@ async def banishment(target, penalty):
     print("Banished " + str(target.display_name))
 
 
+def get_ticket(violation_list: [str], user_from: str, user_to: str):
+    background = Image.open(globalVar.images_loc + "background.png")
+    check = Image.open(globalVar.images_loc + "check.png")
+    # Checkboxes
+    violation_types = [("game", 58, 195), ("meme", 419, 195), ("hentai", 782, 195), ("trap", 1052, 195),
+                       ("girl", 58, 245), ("music", 419, 245), ("manga", 782, 245), ("related", 1052, 245)]
+    # Fill checkboxes
+    counter = 0
+    ticket = background.copy()
+    for entry in violation_list:
+        for v_type in violation_types:
+            if entry == v_type[0]:
+                (name, x, y) = v_type
+                area = (x, y)
+                ticket.paste(check, area)
+                counter += 1
+
+    # Write text
+    draw = ImageDraw.Draw(ticket)
+    # font = ImageFont.truetype(<font-file>, <font-size>)
+    font = ImageFont.truetype(globalVar.fonts_loc + "calibrib.ttf", 45)
+    # draw.text((x, y),"Sample Text",(r,g,b))
+    # Time:
+    draw.text((275, 480), date.today().strftime("%d/%m/%Y"), (0, 0, 0), font=font)
+    # Place:
+    draw.text((275, 531), "Wspólnota KK", (0, 0, 0), font=font)
+    # Issued to:
+    draw.text((275, 578), user_to, (0, 0, 0), font=font)
+    # Issued by:
+    draw.text((275, 628), user_from, (0, 0, 0), font=font)
+    # Penalty:
+    if counter == 1:
+        penalty = "Cringe"
+    elif counter == 2:
+        penalty = "Confiscation of respect"
+    else:
+        penalty = "Dick flattening"
+    draw.text((275, 677), penalty, (0, 0, 0), font=font)
+
+    # Save ticket
+    ticket.save(globalVar.images_loc + "ticket.png")
+
+
 class Ticket(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -118,29 +119,31 @@ class Ticket(commands.Cog):
 
     @commands.command()
     async def ticket(self, ctx, *arg):
+        target_id = 0
         v_list = []
+        id_regex = re.compile('^<@![0-9]+>$')
+        viol_regex = re.compile('^[a-z]+$')
         for entry in arg:
-            v_list.append(entry)
-
-        # Get and clean ID from mention
-        target_id = v_list.pop()
-        target_id = target_id.replace("<", "")
-        target_id = target_id.replace(">", "")
-        target_id = target_id.replace("@", "")
-        target_id = target_id.replace("!", "")
-        target_id = int(target_id)
+            if id_regex.match(entry):
+                # clean ID from mention
+                target_id = entry
+                target_id = target_id.replace("<", ""); target_id = target_id.replace("@", "")
+                target_id = target_id.replace("!", ""); target_id = target_id.replace(">", "")
+            elif viol_regex.match(entry):
+                v_list.append(entry)
 
         guild  = self.bot.get_guild(globalVar.guild)
+        target_id = int(target_id)
         target = guild.get_member(target_id)
         change_counter(target_id, True)
         get_ticket(v_list, ctx.message.author.name, target.display_name)
         number_of_violations = get_number_of_violations(target_id)
 
-        print("id: " + str(target_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
+        print("id: " + str(target_id) + " ma teraz " + str(number_of_violations) + " przewinien(Ticket).")
         await ctx.send(file=discord.File(globalVar.images_loc + 'ticket.png'))
-        await ctx.send("To twoje " + str(number_of_violations) + " przewinienie.")
+        await ctx.send("To dzisiaj twoje " + str(number_of_violations) + " przewinienie.")
         if number_of_violations % 3 == 0:
-            penalty = number_of_violations/3 * 10
+            penalty = 60
             await ctx.send("Z powodu " + str(number_of_violations) + " naruszen dostajesz banicje na " + str(penalty) + " min.")
             await banishment(target, penalty)
 
