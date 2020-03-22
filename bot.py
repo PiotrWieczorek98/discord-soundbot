@@ -100,7 +100,7 @@ async def on_message(message):
             await korwinGenerator.korwin_generator(message)
 
     # IF FILE WAS ATTACHED TO MESSAGE
-    if len(message.attachments) > 0:
+    if len(message.attachments) > 0 and message.channel.id == globalVar.sounds_channel_id:
         if message.attachments[0].filename.endswith(".mp3"):
             file_name = message.attachments[0].filename
             if file_name in globalVar.mp3_names:
