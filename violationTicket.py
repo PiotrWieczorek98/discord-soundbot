@@ -5,10 +5,52 @@ from PIL import ImageDraw
 from datetime import date
 import discord
 import re
+import os
+import uuid
 from discord.ext import commands
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+
+
+def upload_azure():
+    # Upload to cloud
+    try:
+        # Create the BlobServiceClient object which will be used to create a container client
+        connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+        blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+
+        # Create a blob client using the local file name as the name for the blob
+        file_name = "tickets.txt"
+        file_loc = globalVar.files_loc + file_name
+        blob_client = blob_service_client.get_blob_client(container=globalVar.container_name_tickets, blob=file_name)
+
+        # Upload the created file
+        print("\nUploading to Azure Storage as blob: " + file_loc)
+        with open(file_loc, "rb") as data:
+            blob_client.upload_blob(data, overwrite=True)
+    except:
+        print("failed uploading txt to azure")
 
 
 def load_list():
+    # Download from cloud
+    try:
+        # Create the BlobServiceClient object which will be used to create a container client
+        connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+        blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+
+        # Create a blob client using the local file name as the name for the blob
+        file_name = "tickets.txt"
+        file_loc = globalVar.files_loc + file_name
+        blob_client = blob_service_client.get_blob_client(container=globalVar.container_name_tickets, blob=file_name)
+
+        # Download file
+        print("\nDownloading txt...")
+        print("Downloading blob to " + file_loc)
+        with open(file_loc, "wb") as download_file:
+            download_file.write(blob_client.download_blob().readall())
+    except:
+        print("failed downloading txt from azure")
+
     file = open(globalVar.files_loc + "tickets.txt", encoding='utf-8')
     lines = file.read().splitlines()
     for entry in lines:
@@ -16,7 +58,7 @@ def load_list():
         int_tuple = (int(str_tuple[0]), int(str_tuple[1]))
         globalVar.ticket_counter.append(int_tuple)
     file.close()
-    print("Ticket list loaded")
+    print("\nTicket list loaded")
 
 
 def change_counter(user_id: int, increment: bool):
@@ -43,6 +85,7 @@ def change_counter(user_id: int, increment: bool):
     file = open(globalVar.files_loc + "tickets.txt", "w", encoding='utf-8')
     for entry in globalVar.ticket_counter:
         file.write(str(entry[0]) + " " + str(entry[1]) + "\n")
+    file.close()
 
 
 def get_number_of_violations(user_id: int):
@@ -136,14 +179,17 @@ class Ticket(commands.Cog):
         target_id = int(target_id)
         target = guild.get_member(target_id)
         change_counter(target_id, True)
+        # Generate image
         get_ticket(v_list, ctx.message.author.name, target.display_name)
-        number_of_violations = get_number_of_violations(target_id)
+        # Upload files to cloud
+        upload_azure()
 
+        number_of_violations = get_number_of_violations(target_id)
         print("id: " + str(target_id) + " ma teraz " + str(number_of_violations) + " przewinien(Ticket).")
         await ctx.send(file=discord.File(globalVar.images_loc + 'ticket.png'))
-        await ctx.send("To dzisiaj twoje " + str(number_of_violations) + " przewinienie.")
+        await ctx.send("To twoje " + str(number_of_violations) + " przewinienie.")
         if number_of_violations % 3 == 0:
-            penalty = 60
+            penalty = 30
             await ctx.send("Z powodu " + str(number_of_violations) + " naruszen dostajesz banicje na " + str(penalty) + " min.")
             await banishment(target, penalty)
 

@@ -4,14 +4,54 @@ from discord.ext import commands
 from discord.utils import get
 from random import choice
 import globalVar
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 
-def reload_list():
+def upload_azure(file_loc: str, file_name: str):
+    # Upload to cloud
+    #try:
+        # Create the BlobServiceClient object which will be used to create a container client
+    connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+
+    # Create a blob client using the local file name as the name for the blob
+    blob_client = blob_service_client.get_blob_client(container=globalVar.container_name_mp3, blob=file_name)
+
+    # Upload the created file
+    print("\nUploading to Azure Storage as blob: " + file_loc)
+    with open(file_loc, "rb") as data:
+        blob_client.upload_blob(data)
+    #except:
+        #print("failed uploading mp3 to azure")
+
+
+def load_list():
     globalVar.mp3_names.clear()
     globalVar.mp3_names_with_id.clear()
 
-    for entry in os.listdir(globalVar.sounds_loc):
-        if os.path.isfile(os.path.join(globalVar.sounds_loc, entry)):
+    # Download from cloud
+    try:
+        # Create the BlobServiceClient object which will be used to create a container client
+        connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+        blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+
+        # Get container
+        container_client = blob_service_client.get_container_client(globalVar.container_name_mp3)
+
+        # Download files
+        print("\nDownloading mp3...")
+        for blob in container_client.list_blobs():
+            blob_client = blob_service_client.get_blob_client(container=globalVar.container_name_mp3, blob=blob.name)
+            file_loc = globalVar.mp3_loc + blob.name
+            if not os.path.isfile(file_loc):
+                print("Downloading blob to " + file_loc)
+                with open(file_loc, "wb") as download_file:
+                    download_file.write(blob_client.download_blob().readall())
+    except:
+        ("failed downloading mp3 from azure")
+
+    for entry in os.listdir(globalVar.mp3_loc):
+        if os.path.isfile(os.path.join(globalVar.mp3_loc, entry)):
             globalVar.mp3_names.append(entry)
 
     globalVar.mp3_names.sort()
@@ -20,13 +60,13 @@ def reload_list():
     for entry in globalVar.mp3_names:
         counter += 1
         globalVar.mp3_names_with_id.append((counter, entry))
-    print("Sounds loaded")
+    print("\nSounds loaded")
 
 
 class Basic(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        reload_list()
+        load_list()
 
     @commands.command(aliases=['dc', 'disconnect'])
     async def leave(self, ctx):
@@ -59,7 +99,7 @@ class Basic(commands.Cog):
         for entry in globalVar.mp3_names_with_id:
             if mp3.isdecimal():
                 if int(mp3) in entry:
-                    audio_source = globalVar.sounds_loc + entry[1]
+                    audio_source = globalVar.mp3_loc + entry[1]
                     sound_tuple = (voice, audio_source)
                     globalVar.mp3_queue.append(sound_tuple)
                     print("queued {}".format(entry[1]))
@@ -67,7 +107,7 @@ class Basic(commands.Cog):
                 if not mp3.endswith(".mp3"):
                     mp3 += ".mp3"
                 if mp3 in entry:
-                    audio_source = globalVar.sounds_loc + entry[1]
+                    audio_source = globalVar.mp3_loc + entry[1]
                     sound_tuple = (voice, audio_source)
                     globalVar.mp3_queue.append(sound_tuple)
                     print("queued {}".format(entry[1]))
@@ -76,7 +116,7 @@ class Basic(commands.Cog):
     async def random(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
         entry = choice(globalVar.mp3_names)
-        audio_source = globalVar.sounds_loc + entry
+        audio_source = globalVar.mp3_loc + entry
         sound_tuple = (voice, audio_source)
         globalVar.mp3_queue.append(sound_tuple)
         print("queued {}".format(entry[1]))
@@ -111,21 +151,21 @@ class Basic(commands.Cog):
 
     @commands.command(aliases=['ren'])
     async def rename(self, ctx, old_name, new_name):
-        if os.path.isfile(os.path.join(globalVar.sounds_loc, old_name)):
-            os.rename(os.path.join(globalVar.sounds_loc, old_name), os.path.join(globalVar.sounds_loc, new_name))
-            await ctx.send(f"Zmieniono nazwę z: " + globalVar.sounds_loc + old_name + " na: " + new_name)
-            print("Renamed: " + globalVar.sounds_loc + old_name + " to: " + new_name)
-            reload_list()
+        if os.path.isfile(os.path.join(globalVar.mp3_loc, old_name)):
+            os.rename(os.path.join(globalVar.mp3_loc, old_name), os.path.join(globalVar.mp3_loc, new_name))
+            await ctx.send(f"Zmieniono nazwę z: " + globalVar.mp3_loc + old_name + " na: " + new_name)
+            print("Renamed: " + globalVar.mp3_loc + old_name + " to: " + new_name)
+            load_list()
         else:
             ctx.send("Retard alert: Nie ma takiego pliku")
 
     @commands.command(aliases=['del', 'delete'])
     async def remove(self, ctx, file_name):
-        if os.path.isfile(os.path.join(globalVar.sounds_loc, file_name)):
-            os.remove(os.path.join(globalVar.sounds_loc, file_name))
+        if os.path.isfile(os.path.join(globalVar.mp3_loc, file_name)):
+            os.remove(os.path.join(globalVar.mp3_loc, file_name))
             await ctx.send(f"Usunięto: " + file_name)
-            print("Removed " + globalVar.sounds_loc + file_name)
-            reload_list()
+            print("Removed " + globalVar.mp3_loc + file_name)
+            load_list()
         else:
             ctx.send("Retard alert: Nie ma takiego pliku")
 

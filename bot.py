@@ -1,7 +1,11 @@
+import uuid
+
 import discord
 from discord.ext import commands
 import asyncio
+import os
 from random import choice
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 import korwinGenerator
 import globalVar
@@ -44,7 +48,8 @@ async def audio_task():
 
         # Banishment
         for i in range(len(globalVar.banished_users)):
-            incremented = (globalVar.banished_users[i][0], globalVar.banished_users[i][1] + 1, globalVar.banished_users[i][2])
+            incremented = (
+                globalVar.banished_users[i][0], globalVar.banished_users[i][1] + 1, globalVar.banished_users[i][2])
             # Check if penalty time passed
             if incremented[1] >= incremented[2]:
                 globalVar.banished_users.pop(i)
@@ -96,16 +101,19 @@ async def on_message(message):
 
     # IF FILE WAS ATTACHED TO MESSAGE
     if len(message.attachments) > 0:
-        if message.attachments[0].filename.endswith(".mp3") and message.channel.id == globalVar.sounds_channel_id:
+        if message.attachments[0].filename.endswith(".mp3"):
             file_name = message.attachments[0].filename
             if file_name in globalVar.mp3_names:
                 await message.channel.send("Nazwa pliku zajęta.")
             else:
-                await message.attachments[0].save(globalVar.sounds_loc + file_name)
+                file_loc = globalVar.mp3_loc + file_name
+                await message.attachments[0].save(file_loc)
+                basicCommands.upload_azure(file_loc, file_name)
                 await message.add_reaction("👌")
-                print("Added " + globalVar.sounds_loc + file_name)
-                basicCommands.reload_list()
+                print("Added " + globalVar.mp3_loc + file_name)
+                basicCommands.load_list()
 
     await bot.process_commands(message)
+
 
 bot.run(globalVar.bot_token)
