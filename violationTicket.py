@@ -5,7 +5,6 @@ from PIL import ImageDraw
 from datetime import date
 import discord
 import re
-import os
 from discord.ext import commands
 import azureDatabase
 
@@ -48,6 +47,11 @@ def change_counter(user_id: int, increment: bool):
     for entry in globalVar.ticket_counter:
         file.write(str(entry[0]) + " " + str(entry[1]) + "\n")
     file.close()
+
+    # Upload files to cloud
+    file_name = "tickets.txt"
+    file_loc = globalVar.files_loc + file_name
+    azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_tickets)
 
 
 def get_number_of_violations(user_id: int):
@@ -132,9 +136,9 @@ class Ticket(commands.Cog):
             if id_regex.match(entry):
                 # clean ID from mention
                 target_id = entry
-                target_id = target_id.replace("<", "");
+                target_id = target_id.replace("<", "")
                 target_id = target_id.replace("@", "")
-                target_id = target_id.replace("!", "");
+                target_id = target_id.replace("!", "")
                 target_id = target_id.replace(">", "")
             elif viol_regex.match(entry):
                 v_list.append(entry)

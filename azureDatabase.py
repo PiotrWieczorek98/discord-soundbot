@@ -1,5 +1,5 @@
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 import os
+from azure.storage.blob import BlobServiceClient
 
 
 # Upload to cloud
