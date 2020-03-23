@@ -5,11 +5,11 @@ from discord.ext import commands
 import asyncio
 import os
 from random import choice
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 import korwinGenerator
 import globalVar
 import basicCommands
+import azureDatabase
 
 ###############################################################################
 #                                   SETUP
@@ -108,7 +108,7 @@ async def on_message(message):
             else:
                 file_loc = globalVar.mp3_loc + file_name
                 await message.attachments[0].save(file_loc)
-                basicCommands.upload_azure(file_loc, file_name)
+                azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_mp3)
                 await message.add_reaction("👌")
                 print("Added " + globalVar.mp3_loc + file_name)
                 basicCommands.load_list()

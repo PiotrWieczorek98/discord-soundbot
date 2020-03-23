@@ -4,51 +4,14 @@ from discord.ext import commands
 from discord.utils import get
 from random import choice
 import globalVar
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
-
-
-def upload_azure(file_loc: str, file_name: str):
-    # Upload to cloud
-    #try:
-        # Create the BlobServiceClient object which will be used to create a container client
-    connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-
-    # Create a blob client using the local file name as the name for the blob
-    blob_client = blob_service_client.get_blob_client(container=globalVar.container_name_mp3, blob=file_name)
-
-    # Upload the created file
-    print("\nUploading to Azure Storage as blob: " + file_loc)
-    with open(file_loc, "rb") as data:
-        blob_client.upload_blob(data)
-    #except:
-        #print("failed uploading mp3 to azure")
+import azureDatabase
 
 
 def load_list():
     globalVar.mp3_names.clear()
     globalVar.mp3_names_with_id.clear()
 
-    # Download from cloud
-    try:
-        # Create the BlobServiceClient object which will be used to create a container client
-        connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-        blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-
-        # Get container
-        container_client = blob_service_client.get_container_client(globalVar.container_name_mp3)
-
-        # Download files
-        print("\nDownloading mp3...")
-        for blob in container_client.list_blobs():
-            blob_client = blob_service_client.get_blob_client(container=globalVar.container_name_mp3, blob=blob.name)
-            file_loc = globalVar.mp3_loc + blob.name
-            if not os.path.isfile(file_loc):
-                print("Downloading blob to " + file_loc)
-                with open(file_loc, "wb") as download_file:
-                    download_file.write(blob_client.download_blob().readall())
-    except:
-        ("failed downloading mp3 from azure")
+    azureDatabase.download_from_azure(globalVar.mp3_loc, globalVar.container_name_mp3, False)
 
     for entry in os.listdir(globalVar.mp3_loc):
         if os.path.isfile(os.path.join(globalVar.mp3_loc, entry)):

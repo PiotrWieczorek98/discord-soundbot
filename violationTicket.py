@@ -6,50 +6,12 @@ from datetime import date
 import discord
 import re
 import os
-import uuid
 from discord.ext import commands
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
-
-
-def upload_azure():
-    # Upload to cloud
-    try:
-        # Create the BlobServiceClient object which will be used to create a container client
-        connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-        blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-
-        # Create a blob client using the local file name as the name for the blob
-        file_name = "tickets.txt"
-        file_loc = globalVar.files_loc + file_name
-        blob_client = blob_service_client.get_blob_client(container=globalVar.container_name_tickets, blob=file_name)
-
-        # Upload the created file
-        print("\nUploading to Azure Storage as blob: " + file_loc)
-        with open(file_loc, "rb") as data:
-            blob_client.upload_blob(data, overwrite=True)
-    except:
-        print("failed uploading txt to azure")
+import azureDatabase
 
 
 def load_list():
-    # Download from cloud
-    try:
-        # Create the BlobServiceClient object which will be used to create a container client
-        connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-        blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-
-        # Create a blob client using the local file name as the name for the blob
-        file_name = "tickets.txt"
-        file_loc = globalVar.files_loc + file_name
-        blob_client = blob_service_client.get_blob_client(container=globalVar.container_name_tickets, blob=file_name)
-
-        # Download file
-        print("\nDownloading txt...")
-        print("Downloading blob to " + file_loc)
-        with open(file_loc, "wb") as download_file:
-            download_file.write(blob_client.download_blob().readall())
-    except:
-        print("failed downloading txt from azure")
+    azureDatabase.download_from_azure(globalVar.files_loc, globalVar.container_name_tickets, True)
 
     file = open(globalVar.files_loc + "tickets.txt", encoding='utf-8')
     lines = file.read().splitlines()
@@ -170,19 +132,23 @@ class Ticket(commands.Cog):
             if id_regex.match(entry):
                 # clean ID from mention
                 target_id = entry
-                target_id = target_id.replace("<", ""); target_id = target_id.replace("@", "")
-                target_id = target_id.replace("!", ""); target_id = target_id.replace(">", "")
+                target_id = target_id.replace("<", "");
+                target_id = target_id.replace("@", "")
+                target_id = target_id.replace("!", "");
+                target_id = target_id.replace(">", "")
             elif viol_regex.match(entry):
                 v_list.append(entry)
 
-        guild  = self.bot.get_guild(globalVar.guild)
+        guild = self.bot.get_guild(globalVar.guild)
         target_id = int(target_id)
         target = guild.get_member(target_id)
         change_counter(target_id, True)
         # Generate image
         get_ticket(v_list, ctx.message.author.name, target.display_name)
         # Upload files to cloud
-        upload_azure()
+        file_name = "tickets.txt"
+        file_loc = globalVar.files_loc + file_name
+        azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_tickets)
 
         number_of_violations = get_number_of_violations(target_id)
         print("id: " + str(target_id) + " ma teraz " + str(number_of_violations) + " przewinien(Ticket).")
@@ -190,7 +156,8 @@ class Ticket(commands.Cog):
         await ctx.send("To twoje " + str(number_of_violations) + " przewinienie.")
         if number_of_violations % 3 == 0:
             penalty = 30
-            await ctx.send("Z powodu " + str(number_of_violations) + " naruszen dostajesz banicje na " + str(penalty) + " min.")
+            await ctx.send(
+                "Z powodu " + str(number_of_violations) + " naruszen dostajesz banicje na " + str(penalty) + " min.")
             await banishment(target, penalty)
 
     @commands.command()
