@@ -132,8 +132,12 @@ class Ticket(commands.Cog):
         id_regex = re.compile('^[0-9]+$')
         mention_regex = re.compile('^<@![0-9]+>$')
         viol_regex = re.compile('^[a-z]+$')
+
+        issued_from = ctx.message.author.name
         for entry in arg:
-            if mention_regex.match(entry):
+            if entry == "auto_detected":
+                issued_from = "AAA"
+            elif mention_regex.match(entry):
                 # clean ID from mention
                 target_id = entry
                 target_id = target_id.replace("<", "")
@@ -152,7 +156,8 @@ class Ticket(commands.Cog):
         change_counter(target_id, True)
 
         # Generate image
-        get_ticket(v_list, ctx.message.author.name, target.display_name)
+        issued_to = target.display_name
+        get_ticket(v_list, issued_from, issued_to)
 
         # Upload files to cloud
         file_name = "tickets.txt"

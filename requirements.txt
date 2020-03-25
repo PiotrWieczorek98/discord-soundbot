@@ -19,4 +19,4 @@ azure-storage-blob==12.3.0
 azure-mgmt-storage==8.0.0
 opencv-python==4.2.0.32
 acrcloud==1.5
-moviepy==1.0.1
+pytube3==9.6.4

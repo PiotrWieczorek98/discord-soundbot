@@ -9,7 +9,10 @@ mp3_names = []
 mp3_names_with_id = []
 ticket_counter = []
 banished_users = []
-weeb_songs = ["Caramel", "Chika", "Anime"]
+weeb_songs = ["caramel", "chika", "anime", "opening", "nippon", "japan", "jojo", "giorno"]
+weeb_letters = ["あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ", "さ", "し", "す", "せ", "そ", "た", "ち", "つ",
+                "て", "と", "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ", "ま", "み", "む", "め", "も", "や",
+                "ゆ", "よ", "ら", "り", "る", "れ", "ろ", "わ", "を", "ん"]
 
 # BOT SETTINGS
 bot_prefix = 'boi '
