@@ -11,7 +11,6 @@ ticket_counter = []
 banished_users = []
 
 # BOT SETTINGS
-bot_token = 'NTk1NzIxNjQ5NzE5MDgzMDA4.Xba5Yw.kEDMTabHk8DHXzMFdLQLXrDsi7k'
 bot_prefix = 'boi '
 container_name_tickets = "txt"
 container_name_mp3 = "mp3"

@@ -1,15 +1,15 @@
-import uuid
-
-import discord
-from discord.ext import commands
-import asyncio
-import os
-from random import choice
-
 import korwinGenerator
 import globalVar
 import basicCommands
 import azureDatabase
+import animeDetector
+import extractFrames
+import discord
+import asyncio
+import os
+import cv2
+from random import choice
+from discord.ext import commands
 
 ###############################################################################
 #                                   SETUP
@@ -20,6 +20,7 @@ bot.remove_command("help")
 bot.remove_command("list")
 korwinGenerator.korwin_load()
 
+# Load cogs - commands in different files
 initial_extensions = ["basicCommands", "violationTicket"]
 if __name__ == '__main__':
     for extension in initial_extensions:
@@ -37,6 +38,7 @@ async def audio_task():
 
         # Audio Task
         if len(queue) > 0:
+            # sound tuple = voice client + audio source
             sound_tuple = queue[0]
             voice = sound_tuple[0]
 
@@ -100,20 +102,55 @@ async def on_message(message):
             await korwinGenerator.korwin_generator(message)
 
     # IF FILE WAS ATTACHED TO MESSAGE
-    if len(message.attachments) > 0 and message.channel.id == globalVar.sounds_channel_id:
-        if message.attachments[0].filename.endswith(".mp3"):
-            file_name = message.attachments[0].filename
+    if len(message.attachments) > 0:
+        file_name = message.attachments[0].filename
+        # if contains mp3 file in right channel
+        if file_name.endswith(".mp3") and message.channel.id == globalVar.sounds_channel_id:
             if file_name in globalVar.mp3_names:
                 await message.channel.send("Nazwa pliku zajęta.")
             else:
                 file_loc = globalVar.mp3_loc + file_name
                 await message.attachments[0].save(file_loc)
-                azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_mp3)
                 await message.add_reaction("👌")
-                print("Added " + globalVar.mp3_loc + file_name)
+
+                # Upload file to cloud
+                azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_mp3)
+                # Reload mp3 list
                 basicCommands.load_list()
+                print("Added " + globalVar.mp3_loc + file_name)
+
+        # If contains image check if anime
+        elif file_name.endswith(".png") or file_name.endswith(".jpg"):
+            file_loc = globalVar.images_loc + file_name
+            await message.attachments[0].save(file_loc)
+
+            detected_anime = animeDetector.detect_anime_image(file_loc)
+            if detected_anime:
+                ticket_command = bot.get_command("ticket")
+                ctx = await bot.get_context(message)
+                await message.channel.send("Wykryto anime")
+                await ctx.invoke(ticket_command, "girl", "meme", str(message.author.id))
+
+            # Clean up
+            os.remove(file_loc)
+
+        # If contains video check if anime
+        elif file_name.endswith(".mp4") or file_name.endswith(".webm"):
+            file_loc = globalVar.images_loc + file_name
+            await message.attachments[0].save(file_loc)
+
+            # Opens the Video file
+            detected_anime = extractFrames.detect_anime_video(file_loc)
+            if detected_anime:
+                ticket_command = bot.get_command("ticket")
+                ctx = await bot.get_context(message)
+                await message.channel.send("Wykryto anime")
+                await ctx.invoke(ticket_command, "girl", "meme", str(message.author.id))
+
+            # Clean
+            os.remove(file_loc)
 
     await bot.process_commands(message)
 
 
-bot.run(globalVar.bot_token)
+bot.run(os.getenv('BOT_TOKEN'))

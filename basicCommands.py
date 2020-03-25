@@ -1,18 +1,22 @@
+import globalVar
+import azureDatabase
 import os
 import discord
 from discord.ext import commands
 from discord.utils import get
 from random import choice
-import globalVar
-import azureDatabase
 
 
+# Reload list of mp3
 def load_list():
+    # Clear lists
     globalVar.mp3_names.clear()
     globalVar.mp3_names_with_id.clear()
 
+    # Download new mp3 if found
     azureDatabase.download_from_azure(globalVar.mp3_loc, globalVar.container_name_mp3, False)
 
+    # Add mp3 to list
     for entry in os.listdir(globalVar.mp3_loc):
         if os.path.isfile(os.path.join(globalVar.mp3_loc, entry)):
             globalVar.mp3_names.append(entry)
@@ -26,6 +30,7 @@ def load_list():
     print("\nSounds loaded")
 
 
+# Class with usable commands
 class Basic(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -89,20 +94,18 @@ class Basic(commands.Cog):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_paused():
-            await ctx.message.add_reaction(":thumbup:")
             voice.resume()
-        else:
-            await ctx.send("Retard alert: Nie ma pauzy")
+        await ctx.message.add_reaction(":thumbup:")
+
 
     @commands.command(aliases=['s', 'sto'])
     async def stop(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_playing():
-            await ctx.message.add_reaction(":thumbup:")
             voice.stop()
-        else:
-            await ctx.send("Retard alert: Nic nie jest grane")
+        await ctx.message.add_reaction(":thumbup:")
+
 
     @commands.command()
     async def volume(self, ctx, value: int):
@@ -116,21 +119,23 @@ class Basic(commands.Cog):
     async def rename(self, ctx, old_name, new_name):
         if os.path.isfile(os.path.join(globalVar.mp3_loc, old_name)):
             os.rename(os.path.join(globalVar.mp3_loc, old_name), os.path.join(globalVar.mp3_loc, new_name))
+            load_list()
+
             await ctx.send(f"Zmieniono nazwę z: " + globalVar.mp3_loc + old_name + " na: " + new_name)
             print("Renamed: " + globalVar.mp3_loc + old_name + " to: " + new_name)
-            load_list()
         else:
-            ctx.send("Retard alert: Nie ma takiego pliku")
+            ctx.send("Nie ma takiego pliku")
 
     @commands.command(aliases=['del', 'delete'])
     async def remove(self, ctx, file_name):
         if os.path.isfile(os.path.join(globalVar.mp3_loc, file_name)):
             os.remove(os.path.join(globalVar.mp3_loc, file_name))
+            load_list()
+
             await ctx.send(f"Usunięto: " + file_name)
             print("Removed " + globalVar.mp3_loc + file_name)
-            load_list()
         else:
-            ctx.send("Retard alert: Nie ma takiego pliku")
+            ctx.send("Nie ma takiego pliku")
 
     @commands.command(aliases=['l', 'sounds'])
     async def list(self, ctx):

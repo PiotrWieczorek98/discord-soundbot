@@ -1,12 +1,13 @@
 import globalVar
+import azureDatabase
+import discord
+import re
+
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 from datetime import date
-import discord
-import re
 from discord.ext import commands
-import azureDatabase
 
 
 def load_list():
@@ -20,6 +21,13 @@ def load_list():
         globalVar.ticket_counter.append(int_tuple)
     file.close()
     print("\nTicket list loaded")
+
+
+def get_number_of_violations(user_id: int):
+    for entry in globalVar.ticket_counter:
+        if user_id == entry[0]:
+            return entry[1]
+    return 0
 
 
 def change_counter(user_id: int, increment: bool):
@@ -54,13 +62,6 @@ def change_counter(user_id: int, increment: bool):
     azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_tickets)
 
 
-def get_number_of_violations(user_id: int):
-    for entry in globalVar.ticket_counter:
-        if user_id == entry[0]:
-            return entry[1]
-    return 0
-
-
 async def banishment(target, penalty):
     # Add role
     role = target.guild.get_role(globalVar.banished_role)
@@ -74,8 +75,6 @@ async def banishment(target, penalty):
 
     if not found:
         globalVar.banished_users.append((target, 0, penalty))
-
-    print("Banished " + str(target.display_name))
 
 
 def get_ticket(violation_list: [str], user_from: str, user_to: str):
@@ -130,39 +129,49 @@ class Ticket(commands.Cog):
     async def ticket(self, ctx, *arg):
         target_id = 0
         v_list = []
-        id_regex = re.compile('^<@![0-9]+>$')
+        id_regex = re.compile('^[0-9]+$')
+        mention_regex = re.compile('^<@![0-9]+>$')
         viol_regex = re.compile('^[a-z]+$')
         for entry in arg:
-            if id_regex.match(entry):
+            if mention_regex.match(entry):
                 # clean ID from mention
                 target_id = entry
                 target_id = target_id.replace("<", "")
                 target_id = target_id.replace("@", "")
                 target_id = target_id.replace("!", "")
                 target_id = target_id.replace(">", "")
+            elif id_regex.match(entry):
+                target_id = entry
             elif viol_regex.match(entry):
                 v_list.append(entry)
 
+        # Get member from id
         guild = self.bot.get_guild(globalVar.guild)
         target_id = int(target_id)
         target = guild.get_member(target_id)
         change_counter(target_id, True)
+
         # Generate image
         get_ticket(v_list, ctx.message.author.name, target.display_name)
+
         # Upload files to cloud
         file_name = "tickets.txt"
         file_loc = globalVar.files_loc + file_name
         azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_tickets)
 
         number_of_violations = get_number_of_violations(target_id)
-        print("id: " + str(target_id) + " ma teraz " + str(number_of_violations) + " przewinien(Ticket).")
+
         await ctx.send(file=discord.File(globalVar.images_loc + 'ticket.png'))
         await ctx.send("To twoje " + str(number_of_violations) + " przewinienie.")
+        print("id: " + str(target_id) + " ma teraz " + str(number_of_violations) + " przewinien(Ticket).")
+
+        # Penalty every 3 violations
         if number_of_violations % 3 == 0:
             penalty = 30
+            await banishment(target, penalty)
             await ctx.send(
                 "Z powodu " + str(number_of_violations) + " naruszen dostajesz banicje na " + str(penalty) + " min.")
-            await banishment(target, penalty)
+            print("Banished " + str(target.display_name))
 
     @commands.command()
     async def increment(self, ctx, user_id):
@@ -180,9 +189,22 @@ class Ticket(commands.Cog):
 
     @commands.command()
     async def check(self, ctx, user_id):
+        mention_regex = re.compile('^<@![0-9]+>$')
+        id_regex = re.compile('^[0-9]+$')
+
+        if id_regex.match(user_id):
+            # clean ID from mention
+            user_id = user_id.replace("<", "")
+            user_id = user_id.replace("@", "")
+            user_id = user_id.replace("!", "")
+            user_id = user_id.replace(">", "")
+        elif not id_regex.match(user_id):
+            user_id = 0
+
         number_of_violations = get_number_of_violations(int(user_id))
-        print("id: " + str(user_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
-        await ctx.send("id: " + str(user_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
+
+        await ctx.send("id: " + str(user_id) + " ma " + str(number_of_violations) + " przewinien.")
+        print("id: " + str(user_id) + " ma " + str(number_of_violations) + " przewinien.")
 
 
 def setup(bot):
