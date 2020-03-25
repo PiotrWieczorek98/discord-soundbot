@@ -139,7 +139,7 @@ async def on_message(message):
             await message.attachments[0].save(file_loc)
 
             # Opens the Video file
-            detected_anime = extractFrames.detect_anime_video(file_loc)
+            detected_anime = animeDetector.detect_anime_video(file_loc)
             if detected_anime:
                 ticket_command = bot.get_command("ticket")
                 ctx = await bot.get_context(message)
