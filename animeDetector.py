@@ -1,8 +1,8 @@
 import cv2
 import os.path
 import globalVar
-#from acrcloud.recognizer import ACRCloudRecognizer
-
+from acrcloud import ACRcloud
+from moviepy.editor import *
 
 def detect_anime_image(filename, cascade_file="lbpcascade_animeface.xml"):
     if not os.path.isfile(cascade_file):
@@ -69,15 +69,26 @@ def detect_anime_video(vid_loc):
     return detected_anime
 
 
-def detect_anime_music():
+def detect_anime_music(file_loc):
+    video = VideoFileClip(file_loc)
+    video.audio.write_audiofile(file_loc + ".mp3")
+
+    detected_anime = False
     config = {
-        'host': 'eu-west-1.api.acrcloud.com',
-        'access_key': 'access key',
-        'access_secret': 'secret key',
+        'host': 'http://identify-eu-west-1.acrcloud.com',
+        'key': 'a840dd31ba72330c4ddc1780b156a195',
+        'secret': 'wk35b7rB2aRGib2p3OMcLZh8pth6z24D9bd0AW9i',
         'debug': True,
         'timeout': 10
     }
+    acr = ACRcloud(config)
+    metadata = acr.recognizer(file_loc + ".mp3")
 
-    #acrcloud = ACRCloudRecognizer(config)
+    print(metadata)
+    video.close()
+    for entry in globalVar.weeb_songs:
+        if entry in str(metadata):
+            detected_anime = True
+            break
 
-    #print(acrcloud.recognize_by_file('sample of a track.wav', 0))
+    return detected_anime
