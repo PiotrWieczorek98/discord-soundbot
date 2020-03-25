@@ -43,12 +43,15 @@ def detect_anime_video(vid_loc):
     fps = cam.get(cv2.CAP_PROP_FPS)  # OpenCV2 version 2 used "CV_CAP_PROP_FPS"
     frame_count = int(cam.get(cv2.CAP_PROP_FRAME_COUNT))
     duration = frame_count / fps
-    if duration > 30:
-        max_frame = int(fps * 20)
-        step = int(fps * 2)
+    if duration > 60:
+        max_frame = int(fps * 60)
+        step = int(fps * 10)
+    elif 30 < duration < 60:
+        max_frame = frame_count
+        step = int(fps)
     else:
         max_frame = frame_count
-        step = int(fps / 2)
+        step = int(fps / 4)
     current_frame = 0
     image_loc = ""
     frame_images = []
