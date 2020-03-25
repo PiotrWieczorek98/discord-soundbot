@@ -1,6 +1,7 @@
 import cv2
 import os.path
 import globalVar
+#from acrcloud.recognizer import ACRCloudRecognizer
 
 
 def detect_anime_image(filename, cascade_file="lbpcascade_animeface.xml"):
@@ -66,3 +67,17 @@ def detect_anime_video(vid_loc):
     cv2.destroyAllWindows()
 
     return detected_anime
+
+
+def detect_anime_music():
+    config = {
+        'host': 'eu-west-1.api.acrcloud.com',
+        'access_key': 'access key',
+        'access_secret': 'secret key',
+        'debug': True,
+        'timeout': 10
+    }
+
+    #acrcloud = ACRCloudRecognizer(config)
+
+    #print(acrcloud.recognize_by_file('sample of a track.wav', 0))

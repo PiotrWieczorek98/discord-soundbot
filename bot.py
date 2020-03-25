@@ -3,7 +3,6 @@ import globalVar
 import basicCommands
 import azureDatabase
 import animeDetector
-import extractFrames
 import discord
 import asyncio
 import os
