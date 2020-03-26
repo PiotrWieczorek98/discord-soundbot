@@ -1,6 +1,8 @@
 import cv2
 import os.path
 import globalVar
+import requests
+import imageio
 from acrcloud import ACRcloud
 from pytube import YouTube
 
@@ -40,7 +42,7 @@ def detect_anime_video(vid_loc):
         print('Error: Creating directory of data')
 
     # frame and frame cap
-    fps = cam.get(cv2.CAP_PROP_FPS)  # OpenCV2 version 2 used "CV_CAP_PROP_FPS"
+    fps = cam.get(cv2.CAP_PROP_FPS)
     frame_count = int(cam.get(cv2.CAP_PROP_FRAME_COUNT))
     duration = frame_count / fps
     if duration > 60:
@@ -49,13 +51,17 @@ def detect_anime_video(vid_loc):
     elif 30 < duration < 60:
         max_frame = frame_count
         step = int(fps)
-    else:
+    elif 5 < duration < 30:
         max_frame = frame_count
         step = int(fps / 4)
+    else:
+        max_frame = frame_count
+        step = int(5)
+
     current_frame = 0
     image_loc = ""
     frame_images = []
-    while current_frame < max_frame:
+    while current_frame <= max_frame:
         # reading from frame
         cam.set(1, current_frame)
         ret, frame = cam.read()
@@ -112,6 +118,39 @@ def detect_anime_music(file_loc):
     return detected_anime
 
 
+def detect_anime_gif(file_loc: str):
+    detected_anime = False
+    # Read the gif from disk to `RGB`s
+    gif = imageio.mimread(file_loc)
+    frames_total = len(gif)
+
+    # convert form RGB to BGR
+    images = [cv2.cvtColor(img, cv2.COLOR_RGB2BGR) for img in gif]
+
+    ## Check the gif
+    current_frame = 0
+    frame_images = []
+    while current_frame < frames_total:
+        image_loc = globalVar.images_loc + str(current_frame) + ".jpg"
+        frame_images.append(image_loc)
+        cv2.imwrite(image_loc, images[current_frame])
+        # Check if anime
+        detected_anime = detect_anime_image(image_loc)
+        if detected_anime:
+            break
+        # increasing counter so that it will
+        current_frame += 12
+
+    # Release all space and windows once done
+    cv2.destroyAllWindows()
+    # Clean
+    for entry in frame_images:
+        os.remove(entry)
+    os.remove(file_loc)
+
+    return detected_anime
+
+
 def download_youtube(link: str):
     vid = YouTube(link)
     file_name = "sample"
@@ -122,3 +161,9 @@ def download_youtube(link: str):
         vid.streams.filter(progressive=True).get_by_resolution("720p").download(globalVar.images_loc, file_name)
 
     return file_loc + ".mp4"
+
+
+def download_url(url, file_loc):
+    # Read the gif from the web, save to the disk
+    myfile = requests.get(url)
+    open(file_loc, "wb").write(myfile.content)
