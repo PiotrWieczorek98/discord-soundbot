@@ -153,52 +153,56 @@ class OnMessageEvent(commands.Cog):
         ###########################################################################################################
         #                                           GIF
         ###########################################################################################################
-        if "tenor" or "giphy" or "gif" in str(message.content):
-            print("Checking gif...")
-            found_gif = False
-            found_mp4 = False
-            detected_anime = False
-            vid_link = ""
-            # Wait for the embed to load
-            await asyncio.sleep(5)
+        if "tenor" in str(message.content) or "giphy"in str(message.content) or "gif" in str(message.content):
+            link_regex = re.compile('http(?:s?):\/\/.*')
+            match = link_regex.match(message.content)
+            # If has a link
+            if match.string is not None:
+                print("Checking gif...")
+                found_gif = False
+                found_mp4 = False
+                detected_anime = False
+                vid_link = ""
+                # Wait for the embed to load
+                await asyncio.sleep(5)
 
-            # Check if gif is embed (links from tenor)
-            embed_list = message.embeds
-            if embed_list[0].video.url != discord.Embed.Empty:
-                vid_link = embed_list[0].video.url
-                if vid_link.endswith("mp4"):
-                    found_mp4 = True
-                else:
-                    found_gif = True
+                # Check if gif is embed (links from tenor)
+                embed_list = message.embeds
+                if embed_list[0].video.url != discord.Embed.Empty:
+                    vid_link = embed_list[0].video.url
+                    if vid_link.endswith("mp4"):
+                        found_mp4 = True
+                    else:
+                        found_gif = True
 
-            elif embed_list[0].url != discord.Embed.Empty:
-                vid_link = embed_list[0].url
-                if vid_link.endswith("mp4"):
-                    found_mp4 = True
-                else:
-                    found_gif = True
+                elif embed_list[0].url != discord.Embed.Empty:
+                    vid_link = embed_list[0].url
+                    if vid_link.endswith("mp4"):
+                        found_mp4 = True
+                    else:
+                        found_gif = True
 
-            if found_gif:
-                print(vid_link)
-                file_loc = globalVar.images_loc + "test.gif"
-                animeDetector.download_url(vid_link, file_loc)
-                detected_anime = animeDetector.detect_anime_gif(file_loc)
-                # Clean up
-                os.remove(file_loc)
+                if found_gif:
+                    print(vid_link)
+                    file_loc = globalVar.images_loc + "test.gif"
+                    animeDetector.download_url(vid_link, file_loc)
+                    detected_anime = animeDetector.detect_anime_gif(file_loc)
+                    # Clean up
+                    os.remove(file_loc)
 
-            elif found_mp4:
-                print(vid_link)
-                file_loc = globalVar.images_loc + "test.mp4"
-                animeDetector.download_url(vid_link, file_loc)
-                detected_anime = animeDetector.detect_anime_video(file_loc)
-                # Clean up
-                os.remove(file_loc)
+                elif found_mp4:
+                    print(vid_link)
+                    file_loc = globalVar.images_loc + "test.mp4"
+                    animeDetector.download_url(vid_link, file_loc)
+                    detected_anime = animeDetector.detect_anime_video(file_loc)
+                    # Clean up
+                    os.remove(file_loc)
 
-            if detected_anime:
-                violation_list.clear()
-                violation_list.append("meme")
-                violation_list.append("girl")
-                await self.issue_ticket(message, violation_list)
+                if detected_anime:
+                    violation_list.clear()
+                    violation_list.append("meme")
+                    violation_list.append("girl")
+                    await self.issue_ticket(message, violation_list)
 
 
 def setup(bot):
