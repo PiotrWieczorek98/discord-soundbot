@@ -65,7 +65,8 @@ def change_counter(user_id: int, increment: bool):
 async def banishment(target, penalty):
     # Add role
     role = target.guild.get_role(globalVar.banished_role)
-    await target.add_roles(role)
+    if role is not None:
+        await target.add_roles(role)
     # Add to timer
     found = False
     for i in range(len(globalVar.banished_users)):
@@ -128,15 +129,21 @@ class Ticket(commands.Cog):
     @commands.command()
     async def ticket(self, ctx, *arg):
         target_id = 0
+        auto_detected = False
         v_list = []
+
+        # Regular expressions to check args
         id_regex = re.compile('^[0-9]+$')
         mention_regex = re.compile('^<@![0-9]+>$')
         viol_regex = re.compile('^[a-z]+$')
 
         issued_from = ctx.message.author.name
         for entry in arg:
+
             if entry == "auto_detected":
                 issued_from = "AAA"
+                auto_detected = True
+
             elif mention_regex.match(entry):
                 # clean ID from mention
                 target_id = entry
@@ -144,15 +151,19 @@ class Ticket(commands.Cog):
                 target_id = target_id.replace("@", "")
                 target_id = target_id.replace("!", "")
                 target_id = target_id.replace(">", "")
+
             elif id_regex.match(entry):
                 target_id = entry
+
             elif viol_regex.match(entry):
                 v_list.append(entry)
 
         # Get member from id
-        guild = self.bot.get_guild(globalVar.guild)
         target_id = int(target_id)
-        target = guild.get_member(target_id)
+        if not auto_detected:
+            target = ctx.message.mentions[0]
+        else:
+            target = ctx.message.author
         change_counter(target_id, True)
 
         # Generate image

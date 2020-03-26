@@ -22,4 +22,3 @@ container_name_mp3 = "mp3"
 sounds_channel_id = 594937312736182313
 
 banished_role = 688352776446541844
-guild = 203114439468253184
