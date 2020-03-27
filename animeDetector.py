@@ -105,7 +105,8 @@ def detect_anime_music(file_loc):
     acr = ACRcloud(config)
     metadata = acr.recognizer(file_loc)
 
-    print("\n" + metadata + "\n")
+    print("\n METADATA:")
+    print(metadata)
     for entry in globalVar.jojo_reference:
         if entry in str(metadata).casefold():
             result = 2
