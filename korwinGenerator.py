@@ -5,7 +5,7 @@ import globalVar
 korwin_list = []
 
 
-def korwin_load():
+def load_list():
     counter = 0
     for entry in os.listdir(globalVar.korwin_loc):
         if os.path.isfile(os.path.join(globalVar.korwin_loc, entry)):

@@ -11,9 +11,9 @@ from discord.ext import commands
 
 
 def load_list():
-    azureDatabase.download_from_azure(globalVar.files_loc, globalVar.container_name_tickets, True)
+    azureDatabase.download_from_azure(globalVar.files_loc, globalVar.container_name_txt, True)
 
-    file = open(globalVar.files_loc + "tickets.txt", encoding='utf-8')
+    file = open(globalVar.files_loc + globalVar.tickets_txt, encoding='utf-8')
     lines = file.read().splitlines()
     for entry in lines:
         str_tuple = entry.split(" ")
@@ -59,7 +59,7 @@ def change_counter(user_id: int, increment: bool):
     # Upload files to cloud
     file_name = "tickets.txt"
     file_loc = globalVar.files_loc + file_name
-    azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_tickets)
+    azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_txt)
 
 
 async def banishment(target, penalty):
@@ -173,7 +173,7 @@ class Ticket(commands.Cog):
         # Upload files to cloud
         file_name = "tickets.txt"
         file_loc = globalVar.files_loc + file_name
-        azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_tickets)
+        azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_txt)
 
         number_of_violations = get_number_of_violations(target_id)
 

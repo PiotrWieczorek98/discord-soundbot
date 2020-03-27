@@ -26,6 +26,10 @@ class OnMessageEvent(commands.Cog):
         await message.channel.send("Wykryto anime w poście " + message.author.mention + ". Uruchamiam protokół T1CK3T")
         await ctx.invoke(ticket_command, *viol_list)
 
+    async def jojo_ref(self, message):
+        ctx = await self.bot.get_context(message)
+        await ctx.send(file=discord.File(globalVar.images_loc + 'jojo.png'))
+
     @commands.Cog.listener()
     async def on_message(self, message):
         # REACT TO SOME MESSAGES
@@ -107,7 +111,7 @@ class OnMessageEvent(commands.Cog):
                 # Check video
                 detected_anime_vid = animeDetector.detect_anime_video(file_loc)
                 detected_anime_mp3 = animeDetector.detect_anime_music(file_loc)
-                if detected_anime_vid or detected_anime_mp3:
+                if detected_anime_vid is True or detected_anime_mp3 == 1:
                     violation_list.clear()
                     if detected_anime_vid:
                         violation_list.append("meme")
@@ -116,6 +120,9 @@ class OnMessageEvent(commands.Cog):
                         violation_list.append("music")
                         violation_list.append("related")
                     await self.issue_ticket(message, violation_list)
+
+                elif detected_anime_mp3 == 2:
+                    await self.jojo_ref(message)
 
                 # Clean
                 os.remove(file_loc)
@@ -137,7 +144,7 @@ class OnMessageEvent(commands.Cog):
                 # Check video
                 detected_anime_vid = animeDetector.detect_anime_video(file_loc)
                 detected_anime_mp3 = animeDetector.detect_anime_music(file_loc)
-                if detected_anime_vid or detected_anime_mp3:
+                if detected_anime_vid is True or detected_anime_mp3 == 1:
                     violation_list.clear()
                     if detected_anime_vid:
                         violation_list.append("meme")
@@ -146,6 +153,9 @@ class OnMessageEvent(commands.Cog):
                         violation_list.append("music")
                         violation_list.append("related")
                     await self.issue_ticket(message, violation_list)
+
+                elif detected_anime_mp3 == 2:
+                    await self.jojo_ref(message)
 
                 # Clean
                 os.remove(file_loc)

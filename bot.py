@@ -1,4 +1,5 @@
 import korwinGenerator
+import animeDetector
 import globalVar
 import discord
 import asyncio
@@ -12,7 +13,6 @@ from discord.ext import commands
 bot = commands.Bot(command_prefix=globalVar.bot_prefix)
 bot.remove_command("help")
 bot.remove_command("list")
-korwinGenerator.korwin_load()
 
 # Load cogs - commands in different files
 initial_extensions = ["basicCommands", "violationTicketCommands", "onMessageEvents"]
@@ -63,6 +63,9 @@ async def audio_task():
 async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(globalVar.bot_prefix))
     bot.bg_task = bot.loop.create_task(audio_task())
+    korwinGenerator.load_list()
+    animeDetector.load_lists()
+
     print("\nLogged in as: " + bot.user.name + "\n")
 
 

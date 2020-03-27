@@ -93,7 +93,8 @@ def detect_anime_video(vid_loc):
 
 
 def detect_anime_music(file_loc):
-    detected_anime = False
+    # result: 0 - not detected, 1 - detected anime, 2 - detected jojo
+    result = 0
     config = {
         'host': 'http://identify-eu-west-1.acrcloud.com',
         'key': 'a840dd31ba72330c4ddc1780b156a195',
@@ -104,18 +105,24 @@ def detect_anime_music(file_loc):
     acr = ACRcloud(config)
     metadata = acr.recognizer(file_loc)
 
-    print(metadata)
-    for entry in globalVar.weeb_songs:
+    print("\n" + metadata + "\n")
+    for entry in globalVar.jojo_reference:
         if entry in str(metadata).casefold():
-            detected_anime = True
+            result = 2
             break
 
-    for entry in globalVar.weeb_songs:
-        if entry in str(metadata):
-            detected_anime = True
-            break
+    if result == 0:
+        for entry in globalVar.weeb_songs:
+            if entry in str(metadata).casefold():
+                result = 1
+                break
 
-    return detected_anime
+        for entry in globalVar.weeb_letters:
+            if entry in str(metadata).casefold():
+                result = 1
+                break
+
+    return result
 
 
 def detect_anime_gif(file_loc: str):
@@ -167,3 +174,18 @@ def download_url(url, file_loc):
     # Read the gif from the web, save to the disk
     myfile = requests.get(url)
     open(file_loc, "wb").write(myfile.content)
+
+
+def load_lists():
+    file_names = [globalVar.weeb_songs_txt, globalVar.weeb_letters_txt, globalVar.jojo_reference_txt]
+    list_names = [globalVar.weeb_songs, globalVar.weeb_letters, globalVar.jojo_reference]
+
+    for i in range(len(list_names)):
+        file = open(globalVar.files_loc + file_names[i], encoding='utf-8')
+        lines = file.read().splitlines()
+
+        for line in lines:
+            list_names[i].append(line)
+
+        file.close()
+        print(file_names[i] + " list loaded")

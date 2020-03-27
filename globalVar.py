@@ -9,14 +9,18 @@ mp3_names = []
 mp3_names_with_id = []
 ticket_counter = []
 banished_users = []
-weeb_songs = ["caramel", "chika", "anime", "opening", "nippon", "japan", "jojo", "giorno"]
-weeb_letters = ["あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ", "さ", "し", "す", "せ", "そ", "た", "ち", "つ",
-                "て", "と", "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ", "ま", "み", "む", "め", "も", "や",
-                "ゆ", "よ", "ら", "り", "る", "れ", "ろ", "わ", "を", "ん"]
+weeb_songs = []
+weeb_letters = []
+jojo_reference = []
+
+tickets_txt = "tickets.txt"
+weeb_songs_txt = "weeb_songs.txt"
+weeb_letters_txt = "weeb_letters.txt"
+jojo_reference_txt = "jojo_reference.txt"
 
 # BOT SETTINGS
 bot_prefix = 'boi '
-container_name_tickets = "txt"
+container_name_txt = "txt"
 container_name_mp3 = "mp3"
 
 sounds_channel_id = 594937312736182313
