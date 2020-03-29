@@ -106,7 +106,6 @@ class Basic(commands.Cog):
             voice.stop()
         await ctx.message.add_reaction(":thumbup:")
 
-
     @commands.command()
     async def volume(self, ctx, value: int):
         voice = get(self.bot.voice_clients, guild=ctx.guild)

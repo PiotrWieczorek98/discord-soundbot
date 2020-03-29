@@ -205,22 +205,18 @@ class Ticket(commands.Cog):
 
     @commands.command()
     async def check(self, ctx, user_id):
-        mention_regex = re.compile('^<@![0-9]+>$')
-        id_regex = re.compile('^[0-9]+$')
+        mentions = ctx.message.mentions
+        if len(mentions) > 0:
+            target = mentions[0]
+            number_of_violations = get_number_of_violations(int(target.id))
 
-        if id_regex.match(user_id):
-            # clean ID from mention
-            user_id = user_id.replace("<", "")
-            user_id = user_id.replace("@", "")
-            user_id = user_id.replace("!", "")
-            user_id = user_id.replace(">", "")
-        elif not id_regex.match(user_id):
-            user_id = 0
+            await ctx.send("id: " + str(target.nick) + " ma " + str(number_of_violations) + " przewinien.")
+            print("id: " + str(target.id) + " ma " + str(number_of_violations) + " przewinien.")
+        else:
+            number_of_violations = get_number_of_violations(int(user_id))
 
-        number_of_violations = get_number_of_violations(int(user_id))
-
-        await ctx.send("id: " + str(user_id) + " ma " + str(number_of_violations) + " przewinien.")
-        print("id: " + str(user_id) + " ma " + str(number_of_violations) + " przewinien.")
+            await ctx.send("id: " + str(user_id) + " ma " + str(number_of_violations) + " przewinien.")
+            print(str(user_id) + " ma " + str(number_of_violations) + " przewinien.")
 
 
 def setup(bot):
