@@ -176,18 +176,18 @@ class Ticket(commands.Cog):
         azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_txt)
 
         number_of_violations = get_number_of_violations(target_id)
-
-        await ctx.send(file=discord.File(globalVar.images_loc + 'ticket.png'))
-        await ctx.send("To twoje " + str(number_of_violations) + " przewinienie.")
-        print("id: " + str(target_id) + " ma teraz " + str(number_of_violations) + " przewinien(Ticket).")
-
+        message = "To twoje " + str(number_of_violations) + " przewinienie."
         # Penalty every 3 violations
         if number_of_violations % 3 == 0:
             penalty = 30
             await banishment(target, penalty)
-            await ctx.send(
-                "Z powodu " + str(number_of_violations) + " naruszen dostajesz banicje na " + str(penalty) + " min.")
+            message += "\nZ powodu " + str(number_of_violations) + " naruszen dostajesz banicje na " + str(penalty) + " min."
             print("Banished " + str(target.display_name))
+
+        await ctx.send(content=message,
+                       file=discord.File(globalVar.images_loc + 'ticket.png'))
+        print("id: " + str(target_id) + " ma teraz " + str(number_of_violations) + " przewinien(Ticket).")
+
 
     @commands.command()
     async def increment(self, ctx, user_id):

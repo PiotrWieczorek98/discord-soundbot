@@ -5,7 +5,8 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 from random import choice
-
+import re
+import animeDetector
 
 # Reload list of mp3
 def load_list():
@@ -36,6 +37,10 @@ class Basic(commands.Cog):
         self.bot = bot
         load_list()
 
+    @commands.command()
+    async def reload(self, ctx):
+        load_list()
+
     @commands.command(aliases=['dc', 'disconnect'])
     async def leave(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
@@ -55,7 +60,8 @@ class Basic(commands.Cog):
             await ctx.send("Retard alert: Nie jest grane")
 
     @commands.command(aliases=['p', 'pla'])
-    async def play(self, ctx, mp3: str, voice_chat_name="none"):
+    async def play(self, ctx, sound_name: str, voice_chat_name="none"):
+        # Check if voice client is in right channel
         voice = get(self.bot.voice_clients, guild=ctx.guild)
         for channel in ctx.guild.voice_channels:
             if channel.name == voice_chat_name:
@@ -64,21 +70,38 @@ class Basic(commands.Cog):
                     await channel.connect()
                 voice = get(self.bot.voice_clients, guild=ctx.guild)
 
-        for entry in globalVar.mp3_names_with_id:
-            if mp3.isdecimal():
-                if int(mp3) in entry:
-                    audio_source = globalVar.mp3_loc + entry[1]
-                    sound_tuple = (voice, audio_source)
-                    globalVar.mp3_queue.append(sound_tuple)
-                    print("queued {}".format(entry[1]))
-            else:
-                if not mp3.endswith(".mp3"):
-                    mp3 += ".mp3"
-                if mp3 in entry:
-                    audio_source = globalVar.mp3_loc + entry[1]
-                    sound_tuple = (voice, audio_source)
-                    globalVar.mp3_queue.append(sound_tuple)
-                    print("queued {}".format(entry[1]))
+        # check if it is a youtube video
+        # Regex for yt link, extracts id
+        link_regex = re.compile(
+            'http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?')
+        vid_id = link_regex.findall(sound_name)
+
+        # If found vid id
+        if vid_id[0][0] is not None:
+            link = "https://www.youtube.com/watch?v=" + vid_id[0][0]
+            audio_source = animeDetector.download_youtube_audio(link)
+            sound_tuple = (voice, audio_source)
+            globalVar.mp3_queue.append(sound_tuple)
+            print("queued {}".format(link))
+
+        # Else check saved sounds
+        else:
+            # Find sound
+            for entry in globalVar.mp3_names_with_id:
+                if sound_name.isdecimal():
+                    if int(sound_name) in entry:
+                        audio_source = globalVar.mp3_loc + entry[1]
+                        sound_tuple = (voice, audio_source)
+                        globalVar.mp3_queue.append(sound_tuple)
+                        print("queued {}".format(entry[1]))
+                else:
+                    if not sound_name.endswith(".mp3"):
+                        sound_name += ".mp3"
+                    if sound_name in entry:
+                        audio_source = globalVar.mp3_loc + entry[1]
+                        sound_tuple = (voice, audio_source)
+                        globalVar.mp3_queue.append(sound_tuple)
+                        print("queued {}".format(entry[1]))
 
     @commands.command(aliases=['ran', 'los'])
     async def random(self, ctx):
@@ -120,8 +143,8 @@ class Basic(commands.Cog):
             os.rename(os.path.join(globalVar.mp3_loc, old_name), os.path.join(globalVar.mp3_loc, new_name))
             load_list()
 
-            await ctx.send(f"Zmieniono nazwę z: " + globalVar.mp3_loc + old_name + " na: " + new_name)
-            print("Renamed: " + globalVar.mp3_loc + old_name + " to: " + new_name)
+            await ctx.send(f"Zmieniono nazwę z: " + old_name + " na: " + new_name)
+            print("Renamed: " + old_name + " to: " + new_name)
         else:
             ctx.send("Nie ma takiego pliku")
 

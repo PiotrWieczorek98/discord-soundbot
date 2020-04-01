@@ -130,7 +130,7 @@ class OnMessageEvent(commands.Cog):
         ###########################################################################################################
         #                                           YOUTUBE
         ###########################################################################################################
-        if "youtu" in str(message.content):
+        if "youtu" in str(message.content) and "boi play" not in str(message.content):
             print("Checking youtube video...")
             # Regex for yt link, extracts id
             link_regex = re.compile(
@@ -139,7 +139,7 @@ class OnMessageEvent(commands.Cog):
             # If found vid id
             if vid_id[0][0] is not None:
                 link = "https://www.youtube.com/watch?v=" + vid_id[0][0]
-                file_loc = animeDetector.download_youtube(link)
+                file_loc = animeDetector.download_youtube_video(link)
 
                 # Check video
                 detected_anime_vid = animeDetector.detect_anime_video(file_loc)

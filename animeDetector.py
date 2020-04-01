@@ -159,7 +159,7 @@ def detect_anime_gif(file_loc: str):
     return detected_anime
 
 
-def download_youtube(link: str):
+def download_youtube_video(link: str):
     vid = YouTube(link)
     file_name = "sample"
     file_loc = globalVar.images_loc + file_name
@@ -171,10 +171,19 @@ def download_youtube(link: str):
     return file_loc + ".mp4"
 
 
+def download_youtube_audio(link: str):
+    vid = YouTube(link)
+    file_name = "sample"
+    file_loc = globalVar.files_loc
+    vid.streams.get_audio_only().download(file_loc, file_name)
+
+    return file_loc + file_name + ".mp4"
+
+
 def download_url(url, file_loc):
     # Read the gif from the web, save to the disk
-    myfile = requests.get(url)
-    open(file_loc, "wb").write(myfile.content)
+    file = requests.get(url)
+    open(file_loc, "wb").write(file.content)
 
 
 def load_lists():
