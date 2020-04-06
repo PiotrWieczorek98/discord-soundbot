@@ -7,6 +7,7 @@ from acrcloud import ACRcloud
 from pytube import YouTube
 
 
+# detect anime face disabled for a while
 def detect_anime_image(filename, cascade_file="lbpcascade_animeface.xml"):
     if not os.path.isfile(cascade_file):
         raise RuntimeError("%s: not found" % cascade_file)
@@ -22,8 +23,8 @@ def detect_anime_image(filename, cascade_file="lbpcascade_animeface.xml"):
                                      minNeighbors=5,
                                      minSize=(24, 24))
 
-    if len(faces) > 0:
-        return True
+    #if len(faces) > 0:
+     #   return True
     return False
 
 
