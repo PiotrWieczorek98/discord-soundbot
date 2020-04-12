@@ -8,6 +8,7 @@ from random import choice
 import re
 import animeDetector
 
+
 # Reload list of mp3
 def load_list():
     # Clear lists
@@ -77,7 +78,7 @@ class Basic(commands.Cog):
         vid_id = link_regex.findall(sound_name)
 
         # If found vid id
-        if vid_id[0][0] is not None:
+        if len(vid_id) > 0:
             link = "https://www.youtube.com/watch?v=" + vid_id[0][0]
             audio_source = animeDetector.download_youtube_audio(link)
             sound_tuple = (voice, audio_source)

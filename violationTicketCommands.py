@@ -97,9 +97,7 @@ def get_ticket(violation_list: [str], user_from: str, user_to: str):
 
     # Write text
     draw = ImageDraw.Draw(ticket)
-    # font = ImageFont.truetype(<font-file>, <font-size>)
     font = ImageFont.truetype(globalVar.fonts_loc + "calibrib.ttf", 45)
-    # draw.text((x, y),"Sample Text",(r,g,b))
     # Time:
     draw.text((275, 480), date.today().strftime("%d/%m/%Y"), (0, 0, 0), font=font)
     # Place:
@@ -181,11 +179,11 @@ class Ticket(commands.Cog):
         if number_of_violations % 3 == 0:
             penalty = 30
             await banishment(target, penalty)
-            message += "\nZ powodu " + str(number_of_violations) + " naruszen dostajesz banicje na " + str(penalty) + " min."
+            message += "\nZ powodu " + str(number_of_violations) + " naruszen dostajesz banicje na " \
+                       + str(penalty) + " min."
             print("Banished " + str(target.display_name))
 
-        await ctx.send(content=message,
-                       file=discord.File(globalVar.images_loc + 'ticket.png'))
+        await ctx.send(content=message, file=discord.File(globalVar.images_loc + 'ticket.png'))
         print("id: " + str(target_id) + " ma teraz " + str(number_of_violations) + " przewinien(Ticket).")
 
 

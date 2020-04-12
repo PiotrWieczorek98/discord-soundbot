@@ -45,7 +45,10 @@ async def audio_task():
         # Banishment
         for i in range(len(globalVar.banished_users)):
             incremented = (
-                globalVar.banished_users[i][0], globalVar.banished_users[i][1] + 1, globalVar.banished_users[i][2])
+                globalVar.banished_users[i][0],
+                globalVar.banished_users[i][1] + 1,
+                globalVar.banished_users[i][2])
+
             # Check if penalty time passed
             if incremented[1] >= incremented[2]:
                 globalVar.banished_users.pop(i)
