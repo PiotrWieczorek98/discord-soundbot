@@ -119,7 +119,6 @@ class Basic(commands.Cog):
 
         if voice and voice.is_paused():
             voice.resume()
-        await ctx.message.add_reaction(":thumbup:")
 
 
     @commands.command(aliases=['s', 'sto'])
@@ -128,7 +127,6 @@ class Basic(commands.Cog):
 
         if voice and voice.is_playing():
             voice.stop()
-        await ctx.message.add_reaction(":thumbup:")
 
     @commands.command()
     async def volume(self, ctx, value: int):

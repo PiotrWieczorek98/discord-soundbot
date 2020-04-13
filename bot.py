@@ -5,6 +5,8 @@ import discord
 import asyncio
 import os
 from discord.ext import commands
+import time
+
 
 ###############################################################################
 #                                   SETUP
@@ -26,9 +28,36 @@ if __name__ == '__main__':
 ###############################################################################
 async def audio_task():
     counter = 0
+    papal_played = False
     while not bot.is_closed():
         queue = globalVar.mp3_queue
         counter += 1
+        # Papal hour
+        # Get time
+        strings = time.strftime("%Y,%m,%d,%H,%M,%S")
+        time_array = strings.split(',')
+        numbers = [int(x) for x in time_array]
+        # If hour = 21.37
+        if numbers[3] == 23 and numbers[4] == 17 and not papal_played:
+            papal_played = True
+            # Find voice channel with members
+            guild = bot.get_guild(globalVar.guild_test_id)
+            voice_channels = guild.voice_channels
+            for channel in voice_channels:
+                if len(channel.members) > 0:
+                    voice = guild.voice_client
+                    if voice and voice.is_connected():
+                        await voice.disconnect()
+                        await channel.connect()
+                        voice = guild.voice_client
+                    else:
+                        await channel.connect()
+                        voice = guild.voice_client
+
+                    # Play barka
+                    audio_source = globalVar.barka_loc
+                    voice.play(discord.FFmpegPCMAudio(audio_source))
+                    print("Played 2137 " + audio_source)
 
         # Audio Task
         if len(queue) > 0:
