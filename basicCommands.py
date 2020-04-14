@@ -13,14 +13,14 @@ import animeDetector
 def load_list():
     # Clear lists
     globalVar.mp3_names.clear()
-    globalVar.mp3_names_with_id.clear()
+    globalVar.mp3_tuples.clear()
 
     # Download new mp3 if found
     azureDatabase.download_from_azure(globalVar.mp3_loc, globalVar.container_name_mp3, False)
 
     # Add mp3 to list
     for entry in os.listdir(globalVar.mp3_loc):
-        if os.path.isfile(os.path.join(globalVar.mp3_loc, entry)):
+        if os.path.isfile(os.path.join(globalVar.mp3_loc, entry))and entry != ".placeholder":
             globalVar.mp3_names.append(entry)
 
     globalVar.mp3_names.sort()
@@ -28,7 +28,8 @@ def load_list():
 
     for entry in globalVar.mp3_names:
         counter += 1
-        globalVar.mp3_names_with_id.append((counter, entry))
+        name = entry.split("_", 1)[0]
+        globalVar.mp3_tuples.append((counter, entry, name))
     print("\nSounds loaded")
 
 
@@ -88,7 +89,7 @@ class Basic(commands.Cog):
         # Else check saved sounds
         else:
             # Find sound
-            for entry in globalVar.mp3_names_with_id:
+            for entry in globalVar.mp3_tuples:
                 if sound_name.isdecimal():
                     if int(sound_name) in entry:
                         audio_source = globalVar.mp3_loc + entry[1]
@@ -160,12 +161,22 @@ class Basic(commands.Cog):
 
     @commands.command(aliases=['l', 'sounds'])
     async def list(self, ctx):
-        sounds = "```css\n[Lista Dźwięków]\n"
-        for entry in globalVar.mp3_names_with_id:
-            sounds += str(entry[0]) + ". " + entry[1] + "\n"
+        await ctx.send("```css\n[Lista Dźwięków]\n```")
+        message = "```css\n"
+        previous_name = globalVar.mp3_tuples[0][2]
+        for entry in globalVar.mp3_tuples:
+            # Split messages for every user
+            if entry[2] == previous_name:
+                message += str(entry[0]) + ". " + entry[1] + "\n"
+            else:
+                previous_name = entry[2]
+                message += "```"
+                await ctx.send(message)
+                message = "```css\n"
 
-        sounds += "\n```"
-        await ctx.send(sounds)
+        message += "```"
+        await ctx.send(message)
+        print("Sent List")
 
     @commands.command()
     async def help(self, ctx):

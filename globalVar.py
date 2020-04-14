@@ -7,7 +7,7 @@ barka_loc = "sounds/Random_Barka.mp3"
 
 mp3_queue = []
 mp3_names = []
-mp3_names_with_id = []
+mp3_tuples = []
 ticket_counter = []
 banished_users = []
 weeb_songs = []
