@@ -58,7 +58,8 @@ class OnMessageEvent(commands.Cog):
                       "Z raz obranej drogi nie zawracaj w tył. Nie opuszczaj wiary - w dumę białej rasy"]
             await message.channel.send(choice(hitler))
 
-        if "korwin" in message.content:
+        if "korwin" in message.content or \
+                "Kitler" in message.content:
             await korwinGenerator.korwin_generator(message)
 
         # IF FILE WAS ATTACHED TO MESSAGE

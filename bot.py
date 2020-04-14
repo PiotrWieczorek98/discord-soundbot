@@ -38,13 +38,13 @@ async def audio_task():
         time_array = strings.split(',')
         numbers = [int(x) for x in time_array]
         # If hour = 21.37
-        if numbers[3] == 21 and numbers[4] == 37 and not papal_played:
-            papal_played = True
+        if numbers[3] == 19 and numbers[4] == 37 and not papal_played:
             # Find voice channel with members
             guild = bot.get_guild(globalVar.guild_wspolnota_id)
             voice_channels = guild.voice_channels
             for channel in voice_channels:
                 if len(channel.members) > 0:
+                    papal_played = True
                     voice = guild.voice_client
                     if voice and voice.is_connected():
                         await voice.disconnect()
