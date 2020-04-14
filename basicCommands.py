@@ -161,15 +161,28 @@ class Basic(commands.Cog):
 
     @commands.command(aliases=['l', 'sounds'])
     async def list(self, ctx):
-        await ctx.send("```css\n[Lista Dźwięków]\n```")
-        message = "```css\n"
+        message = "```css\n[Lista Dźwięków]\n"
         previous_name = globalVar.mp3_tuples[0][2]
+
         for entry in globalVar.mp3_tuples:
-            # Split messages for every user
-            if entry[2] == previous_name:
-                message += str(entry[0]) + ". " + entry[1] + "\n"
+            if entry[0] < 10:
+                number = str(entry[0]) + ".  "
             else:
-                previous_name = entry[2]
+                number = str(entry[0]) + ". "
+            title = entry[1]
+            name = entry[2]
+
+            # Separate names
+            if name != previous_name:
+                previous_name = name
+                new_line = "\n" + number + title + "\n"
+            else:
+                new_line = number + title + "\n"
+
+            # Split messages every 2000 char
+            if len(message) + len(new_line) < 1997:
+                message += new_line
+            else:
                 message += "```"
                 await ctx.send(message)
                 message = "```css\n"
