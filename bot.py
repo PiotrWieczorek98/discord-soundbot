@@ -32,13 +32,13 @@ async def audio_task():
     while not bot.is_closed():
         queue = globalVar.mp3_queue
         counter += 1
+        #######################################################################
         # Papal hour
         # Get time
         strings = time.strftime("%Y,%m,%d,%H,%M,%S")
         time_array = strings.split(',')
         numbers = [int(x) for x in time_array]
         # If hour = 21.37
-        print(numbers[3])
         if numbers[3] == 21 and numbers[4] == 37 and not papal_played:
             # Find voice channel with members
             guild = bot.get_guild(globalVar.guild_wspolnota_id)
@@ -60,6 +60,10 @@ async def audio_task():
                     voice.play(discord.FFmpegPCMAudio(audio_source))
                     print("Played 2137 " + audio_source)
 
+                    #Send message
+                    await guild.channels[1].send("My God look at the time!")
+
+        #######################################################################
         # Audio Task
         if len(queue) > 0:
             # sound tuple = voice client + audio source
@@ -72,6 +76,7 @@ async def audio_task():
                 globalVar.mp3_queue.pop()
                 print("Played " + audio_source)
 
+        #######################################################################
         # Banishment
         for i in range(len(globalVar.banished_users)):
             incremented = (
@@ -91,7 +96,9 @@ async def audio_task():
         await asyncio.sleep(1)
 
 
+###############################################################################
 # WHEN READY CHANGE STATUS AND CREATE BACKGROUND TASK
+###############################################################################
 @bot.event
 async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(globalVar.bot_prefix))

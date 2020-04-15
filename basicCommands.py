@@ -64,13 +64,16 @@ class Basic(commands.Cog):
     @commands.command(aliases=['p', 'pla'])
     async def play(self, ctx, sound_name: str, voice_chat_name="none"):
         # Check if voice client is in right channel
-        voice = get(self.bot.voice_clients, guild=ctx.guild)
-        for channel in ctx.guild.voice_channels:
-            if channel.name == voice_chat_name:
-                if voice and voice.is_connected():
-                    await voice.disconnect()
-                    await channel.connect()
-                voice = get(self.bot.voice_clients, guild=ctx.guild)
+        voice = ctx.guild.voice_client
+        if voice_chat_name != "none":
+            for channel in ctx.guild.voice_channels:
+                if channel.name == voice_chat_name:
+                    if voice and voice.is_connected():
+                        await voice.disconnect()
+                        await channel.connect()
+                    else:
+                        await channel.connect()
+                    voice = ctx.guild.voice_client
 
         # check if it is a youtube video
         # Regex for yt link, extracts id
@@ -215,8 +218,6 @@ class Basic(commands.Cog):
         if ctx.voice_client is None:
             if ctx.author.voice:
                 await ctx.author.voice.channel.connect()
-            else:
-                await ctx.send("Nie jesteś połączony.")
 
 
 def setup(bot):
