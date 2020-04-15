@@ -26,7 +26,7 @@ if __name__ == '__main__':
 ###############################################################################
 #                               BACKGROUND TASK
 ###############################################################################
-async def audio_task():
+async def background_task():
     counter = 0
     papal_played = False
     while not bot.is_closed():
@@ -42,26 +42,24 @@ async def audio_task():
         if numbers[3] == 21 and numbers[4] == 37 and not papal_played:
             # Find voice channel with members
             guild = bot.get_guild(globalVar.guild_wspolnota_id)
-            voice_channels = guild.voice_channels
-            for channel in voice_channels:
+            for channel in guild.voice_channels:
                 if len(channel.members) > 0:
                     papal_played = True
                     voice = guild.voice_client
                     if voice and voice.is_connected():
                         await voice.disconnect()
                         await channel.connect()
-                        voice = guild.voice_client
                     else:
                         await channel.connect()
-                        voice = guild.voice_client
 
                     # Play barka
                     audio_source = globalVar.barka_loc
+                    voice = guild.voice_client
                     voice.play(discord.FFmpegPCMAudio(audio_source))
                     print("Played 2137 " + audio_source)
 
-                    #Send message
-                    await guild.channels[1].send("My God look at the time!")
+                    # Send message
+                    await guild.text_channels[0].send("My God look at the time!")
 
         #######################################################################
         # Audio Task
@@ -102,7 +100,7 @@ async def audio_task():
 @bot.event
 async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(globalVar.bot_prefix))
-    bot.bg_task = bot.loop.create_task(audio_task())
+    bot.bg_task = bot.loop.create_task(background_task())
     korwinGenerator.load_list()
     animeDetector.load_lists()
 
