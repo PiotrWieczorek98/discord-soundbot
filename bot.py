@@ -38,7 +38,8 @@ async def audio_task():
         time_array = strings.split(',')
         numbers = [int(x) for x in time_array]
         # If hour = 21.37
-        if numbers[3] == 19 and numbers[4] == 37 and not papal_played:
+        print(numbers[3])
+        if numbers[3] == 21 and numbers[4] == 37 and not papal_played:
             # Find voice channel with members
             guild = bot.get_guild(globalVar.guild_wspolnota_id)
             voice_channels = guild.voice_channels
