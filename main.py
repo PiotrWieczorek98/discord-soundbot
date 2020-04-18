@@ -60,6 +60,7 @@ async def background_task():
 
                     # Send message
                     await guild.text_channels[0].send("My God look at the time!")
+                    break
 
         #######################################################################
         # Audio Task

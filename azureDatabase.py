@@ -17,7 +17,7 @@ def upload_to_azure(file_loc: str, file_name: str, container_name: str):
         with open(file_loc, "rb") as data:
             blob_client.upload_blob(data, overwrite=True)
     except:
-        print("failed uploading txt to azure")
+        print("failed uploading to azure")
 
 
 # Download from cloud
@@ -40,4 +40,4 @@ def download_from_azure(file_loc: str, container_name: str, overwrite: bool):
                 with open(file_loc, "wb") as download_file:
                     download_file.write(blob_client.download_blob().readall())
     except:
-        print("failed downloading mp3 from azure")
+        print("failed downloading from azure")

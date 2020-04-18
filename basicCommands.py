@@ -16,6 +16,7 @@ def load_list():
     globalVar.mp3_tuples.clear()
 
     # Download new mp3 if found
+    print("Loading sounds...\n")
     azureDatabase.download_from_azure(globalVar.mp3_loc, globalVar.container_name_mp3, False)
 
     # Add mp3 to list
@@ -30,7 +31,7 @@ def load_list():
         counter += 1
         name = entry.split("_", 1)[0]
         globalVar.mp3_tuples.append((counter, entry, name))
-    print("\nSounds loaded")
+    print("Sounds loaded\n")
 
 
 # Class with usable commands

@@ -7,6 +7,7 @@ korwin_list = []
 
 def load_list():
     counter = 0
+    print("Loading lists...")
     for entry in os.listdir(globalVar.korwin_loc):
         if os.path.isfile(os.path.join(globalVar.korwin_loc, entry)):
             with open(globalVar.korwin_loc + str(counter) + ".txt", encoding='utf-8') as fp:

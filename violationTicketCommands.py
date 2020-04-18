@@ -20,7 +20,7 @@ def load_list():
         int_tuple = (int(str_tuple[0]), int(str_tuple[1]))
         globalVar.ticket_counter.append(int_tuple)
     file.close()
-    print("\nTicket list loaded")
+    print("Ticket list loaded")
 
 
 def get_number_of_violations(user_id: int):
