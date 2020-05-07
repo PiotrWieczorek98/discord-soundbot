@@ -5,7 +5,7 @@ import discord
 import asyncio
 import os
 from discord.ext import commands
-import time
+import datetime
 
 
 ###############################################################################
@@ -35,32 +35,28 @@ async def background_task():
         #######################################################################
         # Papal hour
         # Get time
-        strings = time.strftime("%Y,%m,%d,%H,%M,%S")
-        time_array = strings.split(',')
-        numbers = [int(x) for x in time_array]
         # If hour = 21.37
-        if numbers[3] == 21 and numbers[4] == 37 and not papal_played:
-            # Find voice channel with members
+        if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 37 and not papal_played:
+            # Find voice channel with most members
             guild = bot.get_guild(globalVar.guild_wspolnota_id)
-            for channel in guild.voice_channels:
-                if len(channel.members) > 0:
-                    papal_played = True
-                    voice = guild.voice_client
-                    if voice and voice.is_connected():
-                        await voice.disconnect()
-                        await channel.connect()
-                    else:
-                        await channel.connect()
+            papal_played = True
+            channel_list = [len(channel.members) for channel in guild.voice_channels]
+            voice = guild.voice_client
+            if voice and voice.is_connected():
+                await voice.disconnect()
+                await guild.voice_channels[channel_list.index(max(channel_list))].connect()
+            else:
+                await guild.voice_channels[channel_list.index(max(channel_list))].connect()
 
-                    # Play barka
-                    audio_source = globalVar.barka_loc
-                    voice = guild.voice_client
-                    voice.play(discord.FFmpegPCMAudio(audio_source))
-                    print("Played 2137 " + audio_source)
+            # Play barka
+            audio_source = globalVar.barka_loc
+            voice = guild.voice_client
+            voice.play(discord.FFmpegPCMAudio(audio_source))
+            print("Played 2137 " + audio_source)
 
-                    # Send message
-                    await guild.text_channels[0].send("My God look at the time!")
-                    break
+            # Send message
+            await guild.text_channels[0].send("My God look at the time!")
+            break
 
         #######################################################################
         # Audio Task
