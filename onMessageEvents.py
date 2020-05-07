@@ -151,7 +151,7 @@ class OnMessageEvent(commands.Cog):
         ###########################################################################################################
         #                                           GIF
         ###########################################################################################################
-        if "tenor" in str(message.content) or "giphy"in str(message.content) or "gif" in str(message.content):
+        if "tenor" in str(message.content) or "giphy" in str(message.content) or "gif" in str(message.content):
             link_regex = re.compile('http(?:s?):\/\/.*')
             match = link_regex.match(message.content)
             # If has a link

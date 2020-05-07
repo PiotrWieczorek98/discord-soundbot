@@ -21,7 +21,7 @@ def load_list():
 
     # Add mp3 to list
     for entry in os.listdir(globalVar.mp3_loc):
-        if os.path.isfile(os.path.join(globalVar.mp3_loc, entry))and entry != ".placeholder":
+        if os.path.isfile(os.path.join(globalVar.mp3_loc, entry)) and entry != ".gitkeep":
             globalVar.mp3_names.append(entry)
 
     globalVar.mp3_names.sort()
