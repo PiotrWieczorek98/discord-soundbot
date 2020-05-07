@@ -75,6 +75,7 @@ class OnMessageEvent(commands.Cog):
                       "Nie można zaprzeczyć, że dbał o swój kraj",
                       "Ja, 6 milionów, fafnoście od razu",
                       "Z raz obranej drogi nie zawracaj w tył. Nie opuszczaj wiary - w dumę białej rasy"]
+            await message.add_reaction(":tak:708051706377666652")
             await message.channel.send(choice(hitler))
 
         if "korwin" in message.content or \
