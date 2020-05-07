@@ -17,6 +17,25 @@ class OnMessageEvent(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    async def detect_violation(self, message, file_loc):
+        detected_anime_vid = animeDetector.detect_anime_video(file_loc)
+        detected_anime_mp3 = animeDetector.detect_anime_music(file_loc)
+        if detected_anime_vid is True or detected_anime_mp3 == 1:
+            violation_list.clear()
+            if detected_anime_vid:
+                violation_list.append("meme")
+                violation_list.append("girl")
+            if detected_anime_mp3:
+                violation_list.append("music")
+                violation_list.append("related")
+            await self.issue_ticket(message, violation_list)
+
+        elif detected_anime_mp3 == 2:
+            await self.jojo_ref(message)
+
+        # Clean
+        os.remove(file_loc)
+
     async def issue_ticket(self, message, viol_list):
         viol_list.append(str(message.author.mention))
         viol_list.append("auto_detected")
@@ -46,7 +65,7 @@ class OnMessageEvent(commands.Cog):
             await message.channel.send(choice(badura))
 
         if "gachi" in message.content:
-            await message.channel.send(message.author.name + " why are you gay")
+            await message.channel.send(f"{message.author.name} why are you gay")
 
         if "hitler" in message.content or \
                 "Hitler" in message.content or \
@@ -110,23 +129,7 @@ class OnMessageEvent(commands.Cog):
                 await message.attachments[0].save(file_loc)
 
                 # Check video
-                detected_anime_vid = animeDetector.detect_anime_video(file_loc)
-                detected_anime_mp3 = animeDetector.detect_anime_music(file_loc)
-                if detected_anime_vid is True or detected_anime_mp3 == 1:
-                    violation_list.clear()
-                    if detected_anime_vid:
-                        violation_list.append("meme")
-                        violation_list.append("girl")
-                    if detected_anime_mp3:
-                        violation_list.append("music")
-                        violation_list.append("related")
-                    await self.issue_ticket(message, violation_list)
-
-                elif detected_anime_mp3 == 2:
-                    await self.jojo_ref(message)
-
-                # Clean
-                os.remove(file_loc)
+                await self.detect_violation(message, file_loc)
 
         ###########################################################################################################
         #                                           YOUTUBE
@@ -143,23 +146,7 @@ class OnMessageEvent(commands.Cog):
                 file_loc = animeDetector.download_youtube_video(link)
 
                 # Check video
-                detected_anime_vid = animeDetector.detect_anime_video(file_loc)
-                detected_anime_mp3 = animeDetector.detect_anime_music(file_loc)
-                if detected_anime_vid is True or detected_anime_mp3 == 1:
-                    violation_list.clear()
-                    if detected_anime_vid:
-                        violation_list.append("meme")
-                        violation_list.append("girl")
-                    if detected_anime_mp3:
-                        violation_list.append("music")
-                        violation_list.append("related")
-                    await self.issue_ticket(message, violation_list)
-
-                elif detected_anime_mp3 == 2:
-                    await self.jojo_ref(message)
-
-                # Clean
-                os.remove(file_loc)
+                await self.detect_violation(message, file_loc)
 
         ###########################################################################################################
         #                                           GIF

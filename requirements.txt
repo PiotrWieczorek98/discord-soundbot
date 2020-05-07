@@ -21,3 +21,4 @@ opencv-python==4.2.0.32
 acrcloud==1.5
 pytube3==9.6.4
 imageio==2.8.0
+discord

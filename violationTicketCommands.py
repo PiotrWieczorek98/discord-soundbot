@@ -174,32 +174,33 @@ class Ticket(commands.Cog):
         azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_txt)
 
         number_of_violations = get_number_of_violations(target_id)
-        message = "To twoje " + str(number_of_violations) + " przewinienie."
+        message = f"To twoje {number_of_violations} przewinienie"
         # Penalty every 3 violations
         if number_of_violations % 3 == 0:
-            penalty = 30
+            penalty = 30  # TODO im więcej przewinień tym więcej czasu
             await banishment(target, penalty)
-            message += "\nZ powodu " + str(number_of_violations) + " naruszen dostajesz banicje na " \
-                       + str(penalty) + " min."
+            message += f"\n Z powodu {number_of_violations} naruszen dostajesz banicje na {penalty} + min"
             print("Banished " + str(target.display_name))
 
         await ctx.send(content=message, file=discord.File(globalVar.images_loc + 'ticket.png'))
-        print("id: " + str(target_id) + " ma teraz " + str(number_of_violations) + " przewinien(Ticket).")
+        print(f"id: {target_id} ma teraz {number_of_violations} przewinien(Ticket).")
 
 
     @commands.command()
     async def increment(self, ctx, user_id):
         change_counter(int(user_id), True)
         number_of_violations = get_number_of_violations(int(user_id))
-        print("id: " + str(user_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
-        await ctx.send("id: " + str(user_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
+        message = f"id: {user_id} ma teraz + {number_of_violations} przewinien"
+        print(message)
+        await ctx.send(message)
 
     @commands.command()
     async def decrement(self, ctx, user_id):
         change_counter(int(user_id), False)
         number_of_violations = get_number_of_violations(int(user_id))
-        print("id: " + str(user_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
-        await ctx.send("id: " + str(user_id) + " ma teraz " + str(number_of_violations) + " przewinien.")
+        message = f"id: {user_id} + ma teraz {number_of_violations} przewinien"
+        print(message)
+        await ctx.send(message)
 
     @commands.command()
     async def check(self, ctx, user_id):
@@ -208,13 +209,15 @@ class Ticket(commands.Cog):
             target = mentions[0]
             number_of_violations = get_number_of_violations(int(target.id))
 
-            await ctx.send("id: " + str(target.nick) + " ma " + str(number_of_violations) + " przewinien.")
-            print("id: " + str(target.id) + " ma " + str(number_of_violations) + " przewinien.")
+            message = f"{target.nick} ma {number_of_violations} przewinien"
+            await ctx.send(message)
+            print(message)
         else:
             number_of_violations = get_number_of_violations(int(user_id))
 
-            await ctx.send("id: " + str(user_id) + " ma " + str(number_of_violations) + " przewinien.")
-            print(str(user_id) + " ma " + str(number_of_violations) + " przewinien.")
+            message = f"id: {user_id} ma {number_of_violations} + przewinien"
+            await ctx.send(message)
+            print(message)
 
 
 def setup(bot):

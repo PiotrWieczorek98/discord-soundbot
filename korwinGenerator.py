@@ -6,13 +6,12 @@ korwin_list = []
 
 
 def load_list():
-    counter = 0
+
     print("Loading lists...")
-    for entry in os.listdir(globalVar.korwin_loc):
+    for counter, entry in enumerate(os.listdir(globalVar.korwin_loc)):
         if os.path.isfile(os.path.join(globalVar.korwin_loc, entry)):
             with open(globalVar.korwin_loc + str(counter) + ".txt", encoding='utf-8') as fp:
                 korwin_list.append(fp.read().splitlines())
-                counter += 1
     print("Korwin generator loaded")
 
 
