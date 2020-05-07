@@ -38,7 +38,7 @@ async def background_task():
         # Papal hour
         # Get time
         # If hour = 21.37
-        if datetime.datetime.now().hour == 14 and datetime.datetime.now().minute == 13 and not papal_played:
+        if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 37 and not papal_played:
             # Find voice channel with most members
             guild = bot.get_guild(globalVar.guild_wspolnota_id)
             papal_played = True
