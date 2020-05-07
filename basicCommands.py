@@ -78,8 +78,7 @@ class Basic(commands.Cog):
 
         # check if it is a youtube video
         # Regex for yt link, extracts id
-        link_regex = re.compile(
-            'http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?')
+        link_regex = re.compile('http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?')
         vid_id = link_regex.findall(sound_name)
 
         # If found vid id

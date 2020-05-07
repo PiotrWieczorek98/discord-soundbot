@@ -1,4 +1,4 @@
-import cv2
+from cv2 import cv2
 import os.path
 import globalVar
 import requests
@@ -174,10 +174,10 @@ def download_youtube_video(link: str):
 
 def download_youtube_audio(link: str):
     vid = YouTube(link)
-    file_name = "sample"
+    file_name = ''.join(e for e in link if e.isalnum())
     file_loc = globalVar.files_loc
     vid.streams.get_audio_only().download(file_loc, file_name)
-
+    print(file_loc + file_name + ".mp4")
     return file_loc + file_name + ".mp4"
 
 

@@ -6,6 +6,7 @@ import asyncio
 import os
 from discord.ext import commands
 import datetime
+import re
 
 
 ###############################################################################
@@ -29,6 +30,7 @@ if __name__ == '__main__':
 async def background_task():
     counter = 0
     papal_played = False
+    current_source = ""
     while not bot.is_closed():
         queue = globalVar.mp3_queue
         counter += 1
@@ -36,7 +38,7 @@ async def background_task():
         # Papal hour
         # Get time
         # If hour = 21.37
-        if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 37 and not papal_played:
+        if datetime.datetime.now().hour == 14 and datetime.datetime.now().minute == 13 and not papal_played:
             # Find voice channel with most members
             guild = bot.get_guild(globalVar.guild_wspolnota_id)
             papal_played = True
@@ -56,7 +58,6 @@ async def background_task():
 
             # Send message
             await guild.text_channels[0].send("My God look at the time!")
-            break
 
         #######################################################################
         # Audio Task
@@ -66,9 +67,19 @@ async def background_task():
             voice = sound_tuple[0]
 
             if not voice.is_playing():
-                audio_source = sound_tuple[1]
-                voice.play(discord.FFmpegPCMAudio(audio_source))
+                # Delete last file if it was played from youtube
+                link_regex = re.compile('youtube')
+                result = link_regex.search(current_source)
+
+                # If found match delete the file
+                if result and len(result) > 0:
+                    os.remove(current_source)
+
+                new_source = sound_tuple[1]
+                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(new_source)))
                 globalVar.mp3_queue.pop()
+                current_source = audio_source
+
                 print("Played " + audio_source)
 
         #######################################################################
