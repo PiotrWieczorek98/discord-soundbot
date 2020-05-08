@@ -16,7 +16,7 @@ virtualenv==16.7.7
 websockets==6.0
 yarl==1.4.2
 opuslib==3.0.1
-pillow==7.0.0
+pillow==7.1.2
 azure-storage-blob==12.3.1
 azure-mgmt-storage==8.0.0
 opencv-python==4.2.0.32
