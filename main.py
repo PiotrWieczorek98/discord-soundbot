@@ -1,13 +1,14 @@
-import korwinGenerator
-import animeDetector
-import globalVar
-import discord
 import asyncio
-import os
-from discord.ext import commands
 import datetime
+import os
 import re
 
+import discord
+from discord.ext import commands
+
+import animeDetector
+import globalVar
+import korwinGenerator
 
 ###############################################################################
 #                                   SETUP
@@ -95,7 +96,7 @@ async def background_task():
                 globalVar.banished_users.pop(i)
                 role = incremented[0].guild.get_role(globalVar.banished_role)
                 await incremented[0].remove_roles(role)
-                print("Removed from banishment " + str(incremented[0].display_name))
+                print(f"Removed from banishment {incremented[0].display_name}")
             else:
                 globalVar.banished_users[i] = incremented
 
@@ -112,7 +113,7 @@ async def on_ready():
     korwinGenerator.load_list()
     animeDetector.load_lists()
 
-    print("\nLogged in as: " + bot.user.name + "\n")
+    print(f"\n Logged in as: {bot.user.name} \n")
 
 
 bot.run(os.getenv('BOT_TOKEN'))

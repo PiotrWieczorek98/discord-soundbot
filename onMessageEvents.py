@@ -1,14 +1,16 @@
-import korwinGenerator
-import globalVar
-import basicCommands
-import azureDatabase
-import animeDetector
+import asyncio
 import os
 import re
-import asyncio
 from random import choice
-from discord.ext import commands
+
 import discord
+from discord.ext import commands
+
+import animeDetector
+import azureDatabase
+import basicCommands
+import globalVar
+import korwinGenerator
 
 violation_list = []
 

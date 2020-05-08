@@ -1,10 +1,12 @@
-from cv2 import cv2
 import os.path
-import globalVar
-import requests
+
 import imageio
+import requests
 from acrcloud import ACRcloud
+from cv2 import cv2
 from pytube import YouTube
+
+import globalVar
 
 
 # detect anime face disabled for a while
@@ -23,8 +25,8 @@ def detect_anime_image(filename, cascade_file="lbpcascade_animeface.xml"):
                                      minNeighbors=5,
                                      minSize=(24, 24))
 
-    #if len(faces) > 0:
-     #   return True
+    # if len(faces) > 0:
+    #   return True
     return False
 
 
@@ -136,7 +138,7 @@ def detect_anime_gif(file_loc: str):
     # convert form RGB to BGR
     images = [cv2.cvtColor(img, cv2.COLOR_RGB2BGR) for img in gif]
 
-    ## Check the gif
+    # Check the gif
     current_frame = 0
     frame_images = []
     while current_frame < frames_total:

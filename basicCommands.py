@@ -1,12 +1,14 @@
-import globalVar
-import azureDatabase
 import os
+import re
+from random import choice
+
 import discord
 from discord.ext import commands
 from discord.utils import get
-from random import choice
-import re
+
 import animeDetector
+import azureDatabase
+import globalVar
 
 
 # Reload list of mp3
@@ -78,7 +80,8 @@ class Basic(commands.Cog):
 
         # check if it is a youtube video
         # Regex for yt link, extracts id
-        link_regex = re.compile('http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?')
+        link_regex = re.compile(
+            'http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?')
         vid_id = link_regex.findall(sound_name)
 
         # If found vid id
@@ -123,7 +126,6 @@ class Basic(commands.Cog):
 
         if voice and voice.is_paused():
             voice.resume()
-
 
     @commands.command(aliases=['s', 'sto'])
     async def stop(self, ctx):

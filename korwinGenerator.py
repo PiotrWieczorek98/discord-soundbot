@@ -1,12 +1,12 @@
 import os
 from random import choice
+
 import globalVar
 
 korwin_list = []
 
 
 def load_list():
-
     print("Loading lists...")
     for counter, entry in enumerate(os.listdir(globalVar.korwin_loc)):
         if os.path.isfile(os.path.join(globalVar.korwin_loc, entry)):

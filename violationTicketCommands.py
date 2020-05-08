@@ -1,13 +1,14 @@
-import globalVar
-import azureDatabase
-import discord
 import re
-
-from PIL import Image
-from PIL import ImageFont
-from PIL import ImageDraw
 from datetime import date
+
+import discord
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 from discord.ext import commands
+
+import azureDatabase
+import globalVar
 
 
 def load_list():
@@ -184,7 +185,6 @@ class Ticket(commands.Cog):
 
         await ctx.send(content=message, file=discord.File(globalVar.images_loc + 'ticket.png'))
         print(f"id: {target_id} ma teraz {number_of_violations} przewinien(Ticket).")
-
 
     @commands.command()
     async def increment(self, ctx, user_id):

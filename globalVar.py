@@ -24,7 +24,7 @@ bot_prefix = 'boi '
 container_name_txt = "txt"
 container_name_mp3 = "mp3"
 
-#IDs
+# IDs
 sounds_channel_id = 594937312736182313
 guild_wspolnota_id = 203114439468253184
 guild_test_id = 346940317376839681
