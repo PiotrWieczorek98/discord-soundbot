@@ -19,7 +19,7 @@ opuslib==3.0.1
 pillow==7.1.2
 azure-storage-blob==12.3.1
 azure-mgmt-storage==8.0.0
-opencv-python==4.2.0.32
+opencv-python==4.2.0.34
 acrcloud==1.5
 pytube3==9.6.4
 imageio==2.8.0
