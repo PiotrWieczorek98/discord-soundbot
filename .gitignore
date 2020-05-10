@@ -1,2 +1,2 @@
-# ignore all mp3
 *.mp3
+__pycache__
