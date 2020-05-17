@@ -54,8 +54,9 @@ async def background_task():
             # Play barka
             audio_source = globalVar.barka_loc
             voice = guild.voice_client
-            voice.play(discord.FFmpegPCMAudio(audio_source))
-            print("Played 2137 " + audio_source)
+            sound_tuple = (voice, audio_source)
+            globalVar.mp3_queue.append(sound_tuple)
+            print("queued 2137 " + audio_source)
 
             # Send message
             await guild.text_channels[0].send("My God look at the time!")
