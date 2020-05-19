@@ -33,7 +33,6 @@ async def background_task():
     papal_played = False
     current_source = ""
     while not bot.is_closed():
-        queue = globalVar.mp3_queue
         counter += 1
         #######################################################################
         # Papal hour
@@ -63,26 +62,17 @@ async def background_task():
 
         #######################################################################
         # Audio Task
-        if len(queue) > 0:
+        if len(globalVar.mp3_queue) > 0:
             # sound tuple = voice client + audio source
-            sound_tuple = queue[0]
+            sound_tuple = globalVar.mp3_queue[0]
             voice = sound_tuple[0]
 
             if not voice.is_playing():
-                # Delete last file if it was played from youtube
-                link_regex = re.compile('youtube')
-                result = link_regex.search(current_source)
-
-                # If found match delete the file
-                if result and len(result) > 0:
-                    os.remove(current_source)
-
-                new_source = sound_tuple[1]
-                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(new_source)))
+                audio_source = sound_tuple[1]
+                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(audio_source)))
                 globalVar.mp3_queue.pop()
-                current_source = new_source
 
-                print("Played " + new_source)
+                print("Played " + audio_source)
 
         #######################################################################
         # Banishment

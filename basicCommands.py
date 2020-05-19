@@ -195,6 +195,15 @@ class Basic(commands.Cog):
         await ctx.send(message)
         print("Sent List")
 
+    @commands.command(aliases=['q', 'kolejka'])
+    async def queue(self, ctx):
+        message = "Kolejka:\n"
+        counter = 0
+        for entry in globalVar.mp3_queue:
+            counter += 1
+            message += f"{counter}. {entry[1]} \n"
+        await ctx.send(message)
+
     @commands.command()
     async def help(self, ctx):
         embed = discord.Embed(colour=discord.Colour.orange())

@@ -44,12 +44,12 @@ class OnMessageEvent(commands.Cog):
         ticket_command = self.bot.get_command("ticket")
         ctx = await self.bot.get_context(message)
 
-        await message.channel.send("Wykryto anime w poście " + message.author.mention + ". Uruchamiam protokół T1CK3T")
+        await message.channel.send(f"Wykryto anime w poście {message.author.mention}. Uruchamiam protokół T1CK3T")
         await ctx.invoke(ticket_command, *viol_list)
 
     async def jojo_ref(self, message):
         ctx = await self.bot.get_context(message)
-        await ctx.send(file=discord.File(globalVar.images_loc + 'jojo.png'))
+        await ctx.send(file=discord.File(f"{globalVar.images_loc} jojo.png"))
 
     @commands.Cog.listener()
     async def on_message(self, message):
