@@ -64,13 +64,11 @@ async def background_task():
         # Audio Task
         if len(globalVar.mp3_queue) > 0:
             # sound tuple = voice client + audio source
-            sound_tuple = globalVar.mp3_queue[0]
-            voice = sound_tuple[0]
-
+            voice = globalVar.mp3_queue[0][0]
             if not voice.is_playing():
-                audio_source = sound_tuple[1]
+                audio_source = globalVar.mp3_queue[0][1]
                 voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(audio_source)))
-                globalVar.mp3_queue.pop()
+                globalVar.mp3_queue.pop(0)
 
                 print("Played " + audio_source)
 
