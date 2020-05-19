@@ -140,8 +140,7 @@ class OnMessageEvent(commands.Cog):
         if "youtu" in str(message.content) and "boi play" not in str(message.content):
             print("Checking youtube video...")
             # Regex for yt link, extracts id
-            link_regex = re.compile(
-                'http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?')
+            link_regex = re.compile('http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?')
             vid_id = link_regex.findall(message.content)
             # If found vid id
             if vid_id[0][0] is not None:

@@ -80,9 +80,9 @@ async def background_task():
                 new_source = sound_tuple[1]
                 voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(new_source)))
                 globalVar.mp3_queue.pop()
-                current_source = audio_source
+                current_source = new_source
 
-                print("Played " + audio_source)
+                print("Played " + new_source)
 
         #######################################################################
         # Banishment
