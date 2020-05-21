@@ -59,7 +59,7 @@ async def background_task():
 
         # Disconnect after a minute
         if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 38 and papal_played:
-            guild = bot.get_guild(globalVar.guild_test_id)
+            guild = bot.get_guild(globalVar.guild_wspolnota_id)
             papal_played = False
             voice = guild.voice_client
             if voice and voice.is_connected():
