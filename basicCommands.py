@@ -141,17 +141,6 @@ class Basic(commands.Cog):
         await ctx.send("Zmieniono głośność na {}%".format(value))
         print("Volume changed to {}%".format(value))
 
-    @commands.command(aliases=['ren'])
-    async def rename(self, ctx, old_name, new_name):
-        if os.path.isfile(os.path.join(globalVar.mp3_loc, old_name)):
-            os.rename(os.path.join(globalVar.mp3_loc, old_name), os.path.join(globalVar.mp3_loc, new_name))
-            load_list()
-
-            await ctx.send(f"Zmieniono nazwę z: " + old_name + " na: " + new_name)
-            print("Renamed: " + old_name + " to: " + new_name)
-        else:
-            ctx.send("Nie ma takiego pliku")
-
     @commands.command(aliases=['del', 'delete'])
     async def remove(self, ctx, file_name):
         if os.path.isfile(os.path.join(globalVar.mp3_loc, file_name)):
