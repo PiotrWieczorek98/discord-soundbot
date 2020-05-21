@@ -29,19 +29,16 @@ if __name__ == '__main__':
 #                               BACKGROUND TASK
 ###############################################################################
 async def background_task():
-    counter = 0
     papal_played = False
-    current_source = ""
+    last_source = ""
     while not bot.is_closed():
-        counter += 1
         #######################################################################
         # Papal hour
-        # Get time
         # If hour = 21.37
         if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 37 and not papal_played:
+            papal_played = True
             # Find voice channel with most members
             guild = bot.get_guild(globalVar.guild_wspolnota_id)
-            papal_played = True
             channel_list = [len(channel.members) for channel in guild.voice_channels]
             voice = guild.voice_client
             if voice and voice.is_connected():
@@ -54,23 +51,38 @@ async def background_task():
             audio_source = globalVar.barka_loc
             voice = guild.voice_client
             sound_tuple = (voice, audio_source)
-            globalVar.mp3_queue.append(sound_tuple)
+            globalVar.mp3_queue.insert(0, sound_tuple)
             print("queued 2137 " + audio_source)
 
             # Send message
             await guild.text_channels[0].send("My God look at the time!")
+
+        # Disconnect after a minute
+        if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 38 and papal_played:
+            guild = bot.get_guild(globalVar.guild_test_id)
+            papal_played = False
+            voice = guild.voice_client
+            if voice and voice.is_connected():
+                await voice.disconnect()
 
         #######################################################################
         # Audio Task
         if len(globalVar.mp3_queue) > 0:
             # sound tuple = voice client + audio source
             voice = globalVar.mp3_queue[0][0]
+            audio_source = globalVar.mp3_queue[0][1]
+
             if not voice.is_playing():
-                audio_source = globalVar.mp3_queue[0][1]
+                # clean tmp file
+                if globalVar.tmp_sounds_loc in last_source and audio_source != last_source:
+                    os.remove(last_source)
+                    print(f"Removed {last_source}")
+
+                # Play sound
                 voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(audio_source)))
                 globalVar.mp3_queue.pop(0)
-
-                print("Played " + audio_source)
+                last_source = audio_source
+                print(f"Played {audio_source}")
 
         #######################################################################
         # Banishment

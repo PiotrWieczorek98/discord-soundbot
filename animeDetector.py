@@ -71,7 +71,7 @@ def detect_anime_video(vid_loc):
 
         if ret:
             # if video is still left continue creating images
-            image_loc = globalVar.images_loc + str(current_frame) + ".jpg"
+            image_loc = f"{globalVar.images_loc}{current_frame}.jpg"
             frame_images.append(image_loc)
             # writing the extracted images
             cv2.imwrite(image_loc, frame)
@@ -142,7 +142,7 @@ def detect_anime_gif(file_loc: str):
     current_frame = 0
     frame_images = []
     while current_frame < frames_total:
-        image_loc = globalVar.images_loc + str(current_frame) + ".jpg"
+        image_loc = f"{globalVar.tmp_images_loc}{current_frame}.jpg"
         frame_images.append(image_loc)
         cv2.imwrite(image_loc, images[current_frame])
         # Check if anime
@@ -165,22 +165,22 @@ def detect_anime_gif(file_loc: str):
 def download_youtube_video(link: str):
     vid = YouTube(link)
     file_name = "sample"
-    file_loc = globalVar.images_loc + file_name
+    file_loc = globalVar.tmp_videos_loc + file_name
     if vid.streams.filter(progressive=True).get_by_resolution("720p") is None:
-        vid.streams.filter(progressive=True).get_highest_resolution().download(globalVar.images_loc, file_name)
+        vid.streams.filter(progressive=True).get_highest_resolution().download(globalVar.tmp_videos_loc, file_name)
     else:
-        vid.streams.filter(progressive=True).get_by_resolution("720p").download(globalVar.images_loc, file_name)
+        vid.streams.filter(progressive=True).get_by_resolution("720p").download(globalVar.tmp_videos_loc, file_name)
 
-    return file_loc + ".mp4"
+    return f"{file_loc}.mp4"
 
 
 def download_youtube_audio(link: str):
     vid = YouTube(link)
     file_name = ''.join(e for e in link if e.isalnum())
-    file_loc = globalVar.files_loc
+    file_loc = globalVar.tmp_sounds_loc
     vid.streams.get_audio_only().download(file_loc, file_name)
-    print(file_loc + file_name + ".mp4")
-    return file_loc + file_name + ".mp4"
+    print(f"{file_loc}{file_name}.mp4")
+    return f"{file_loc}{file_name}.mp4"
 
 
 def download_url(url, file_loc):
@@ -201,4 +201,4 @@ def load_lists():
             list_names[i].append(line)
 
         file.close()
-        print(file_names[i] + " list loaded")
+        print(f"{file_names[i]} list loaded")

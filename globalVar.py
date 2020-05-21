@@ -4,6 +4,10 @@ images_loc = "images/"
 fonts_loc = "fonts/"
 korwin_loc = "korwin/"
 barka_loc = "sounds/Random_Barka.mp3"
+tmp_sounds_loc = "tmp/sounds/"
+tmp_videos_loc = "tmp/videos/"
+tmp_images_loc = "tmp/images/"
+
 
 mp3_queue = []
 mp3_names = []
