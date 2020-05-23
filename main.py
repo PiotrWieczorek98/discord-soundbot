@@ -76,9 +76,16 @@ async def background_task():
 
             if not voice.is_playing():
                 # clean tmp file
-                if globalVar.tmp_sounds_loc in last_source and last_source not in globalVar.mp3_queue[1]:
-                    os.remove(last_source)
-                    print(f"Removed {last_source}")
+                if globalVar.tmp_sounds_loc in last_source:
+                    delete_file = True
+                    # Check if sound is queued again
+                    for sound_tuple in globalVar.mp3_queue:
+                        if last_source in sound_tuple[1]:
+                            delete_file = False
+
+                    if delete_file:     
+                        os.remove(last_source)
+                        print(f"Removed {last_source}")
 
                 # Play sound
                 voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(audio_source)))
