@@ -1,12 +1,12 @@
 import os.path
-
 import imageio
 import requests
 from acrcloud import ACRcloud
 from cv2 import cv2
 from pytube import YouTube
 
-import globalVar
+# pylint: disable=fixme, import-error
+from scripts import globalVar
 
 
 # detect anime face disabled for a while
@@ -194,7 +194,7 @@ def load_lists():
     list_names = [globalVar.weeb_songs, globalVar.weeb_letters, globalVar.jojo_reference]
 
     for i in range(len(list_names)):
-        file = open(globalVar.files_loc + file_names[i], encoding='utf-8')
+        file = open(globalVar.txt_loc + file_names[i], encoding='utf-8')
         lines = file.read().splitlines()
 
         for line in lines:

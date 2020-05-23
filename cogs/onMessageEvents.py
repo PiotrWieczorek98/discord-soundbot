@@ -6,11 +6,9 @@ from random import choice
 import discord
 from discord.ext import commands
 
-import animeDetector
-import azureDatabase
-import basicCommands
-import globalVar
-import korwinGenerator
+# pylint: disable=fixme, import-error
+from scripts import globalVar, korwinGenerator, azureDatabase, animeDetector
+from cogs import basicCommands
 
 violation_list = []
 
@@ -77,7 +75,6 @@ class OnMessageEvent(commands.Cog):
                       "Nie można zaprzeczyć, że dbał o swój kraj",
                       "Ja, 6 milionów, fafnoście od razu",
                       "Z raz obranej drogi nie zawracaj w tył. Nie opuszczaj wiary - w dumę białej rasy"]
-            await message.add_reaction(":tak:708051706377666652")
             await message.channel.send(choice(hitler))
 
         if "korwin" in message.content or \
@@ -140,6 +137,7 @@ class OnMessageEvent(commands.Cog):
         if "youtu" in str(message.content) and "boi play" not in str(message.content):
             print("Checking youtube video...")
             # Regex for yt link, extracts id
+            # pylint: disable=fixme, anomalous-backslash-in-string
             link_regex = re.compile('http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?')
             vid_id = link_regex.findall(message.content)
             # If found vid id
@@ -154,6 +152,7 @@ class OnMessageEvent(commands.Cog):
         #                                           GIF
         ###########################################################################################################
         if "tenor" in str(message.content) or "giphy" in str(message.content) or "gif" in str(message.content):
+            # pylint: disable=fixme, anomalous-backslash-in-string
             link_regex = re.compile('http(?:s?):\/\/.*')
             match = link_regex.match(message.content)
             # If has a link

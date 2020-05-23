@@ -6,9 +6,8 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 
-import animeDetector
-import azureDatabase
-import globalVar
+# pylint: disable=fixme, import-error
+from scripts import animeDetector, azureDatabase, globalVar
 
 
 # Reload list of mp3
@@ -80,7 +79,8 @@ class Basic(commands.Cog):
 
         # check if it is a youtube video
         # Regex for yt link, extracts id
-        link_regex = re.compile('http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?')
+        # pylint: disable=fixme, anomalous-backslash-in-string
+        link_regex = re.compile("http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?")
         vid_id = link_regex.findall(sound_name)
 
         # If found vid id

@@ -7,14 +7,14 @@ from PIL import ImageDraw
 from PIL import ImageFont
 from discord.ext import commands
 
-import azureDatabase
-import globalVar
+# pylint: disable=fixme, import-error
+from scripts import azureDatabase, globalVar
 
 
 def load_list():
-    azureDatabase.download_from_azure(globalVar.files_loc, globalVar.container_name_txt, True)
+    azureDatabase.download_from_azure(globalVar.txt_loc, globalVar.container_name_txt, True)
 
-    file = open(globalVar.files_loc + globalVar.tickets_txt, encoding='utf-8')
+    file = open(globalVar.txt_loc + globalVar.tickets_txt, encoding='utf-8')
     lines = file.read().splitlines()
     for entry in lines:
         str_tuple = entry.split(" ")
@@ -47,19 +47,19 @@ def change_counter(user_id: int, increment: bool):
     # Add new id if not found
     if not found and increment:
         globalVar.ticket_counter.append((user_id, 1))
-        file = open(globalVar.files_loc + "tickets.txt", "a", encoding='utf-8')
+        file = open(globalVar.txt_loc + "tickets.txt", "a", encoding='utf-8')
         file.write(str(user_id) + " 1\n")
         file.close()
 
     # Rewrite file after update
-    file = open(globalVar.files_loc + "tickets.txt", "w", encoding='utf-8')
+    file = open(globalVar.txt_loc + "tickets.txt", "w", encoding='utf-8')
     for entry in globalVar.ticket_counter:
         file.write(str(entry[0]) + " " + str(entry[1]) + "\n")
     file.close()
 
     # Upload files to cloud
     file_name = "tickets.txt"
-    file_loc = globalVar.files_loc + file_name
+    file_loc = globalVar.txt_loc + file_name
     azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_txt)
 
 
@@ -91,8 +91,7 @@ def get_ticket(violation_list: [str], user_from: str, user_to: str):
     for entry in violation_list:
         for v_type in violation_types:
             if entry == v_type[0]:
-                (name, x, y) = v_type
-                area = (x, y)
+                area = (v_type[1], v_type[2])
                 ticket.paste(check, area)
                 counter += 1
 
@@ -171,7 +170,7 @@ class Ticket(commands.Cog):
 
         # Upload files to cloud
         file_name = "tickets.txt"
-        file_loc = globalVar.files_loc + file_name
+        file_loc = globalVar.txt_loc + file_name
         azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_txt)
 
         number_of_violations = get_number_of_violations(target_id)

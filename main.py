@@ -6,9 +6,9 @@ import re
 import discord
 from discord.ext import commands
 
-import animeDetector
-import globalVar
-import korwinGenerator
+from scripts import animeDetector
+from scripts import globalVar
+from scripts import korwinGenerator
 
 ###############################################################################
 #                                   SETUP
@@ -19,10 +19,12 @@ bot.remove_command("help")
 bot.remove_command("list")
 
 # Load cogs - commands in different files
-initial_extensions = ["basicCommands", "violationTicketCommands", "onMessageEvents"]
-if __name__ == '__main__':
-    for extension in initial_extensions:
+initial_extensions = ["cogs.basicCommands", "cogs.violationTicketCommands", "cogs.onMessageEvents"]
+for extension in initial_extensions:
+    try:
         bot.load_extension(extension)
+    except Exception as e:
+        print(f'Failed to load extension {extension}.')
 
 
 ###############################################################################
@@ -74,7 +76,7 @@ async def background_task():
 
             if not voice.is_playing():
                 # clean tmp file
-                if globalVar.tmp_sounds_loc in last_source and audio_source != last_source:
+                if globalVar.tmp_sounds_loc in last_source and last_source not in globalVar.mp3_queue[1]:
                     os.remove(last_source)
                     print(f"Removed {last_source}")
 
@@ -114,7 +116,6 @@ async def on_ready():
     korwinGenerator.load_list()
     animeDetector.load_lists()
 
-    print(f"\n Logged in as: {bot.user.name} \n")
-
+    print(f"\nLogged in as: {bot.user.name}\n")
 
 bot.run(os.getenv('BOT_TOKEN'))

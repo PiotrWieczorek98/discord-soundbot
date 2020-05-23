@@ -1,7 +1,8 @@
 import os
 from random import choice
 
-import globalVar
+# pylint: disable=fixme, import-error
+from scripts import globalVar
 
 korwin_list = []
 
