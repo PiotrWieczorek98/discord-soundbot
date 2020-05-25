@@ -175,10 +175,15 @@ def download_youtube_video(link: str):
 
 
 def download_youtube_audio(link: str):
-    vid = YouTube(link)
     file_name = ''.join(e for e in link if e.isalnum())
     file_loc = globalVar.tmp_sounds_loc
-    vid.streams.get_audio_only().download(file_loc, file_name)
+    try:
+        vid = YouTube(link)
+        vid.streams.get_audio_only().download(file_loc, file_name)
+    except:
+        print(f"ERROR: downloading {link} failed!")
+        return None
+
     print(f"{file_loc}{file_name}.mp4")
     return f"{file_loc}{file_name}.mp4"
 

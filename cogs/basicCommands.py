@@ -34,6 +34,11 @@ def load_list():
         globalVar.mp3_tuples.append((counter, entry, name))
     print("Sounds loaded\n")
 
+def volume(self, ctx, value: int):
+    voice = get(self.bot.voice_clients, guild=ctx.guild)
+    voice.source = discord.PCMVolumeTransformer(voice.source)
+    voice.source.volume = value / 100
+    print("Volume changed to {}%".format(value))
 
 # Class with usable commands
 class Basic(commands.Cog):
@@ -45,25 +50,15 @@ class Basic(commands.Cog):
     async def reload(self, ctx):
         load_list()
 
-    @commands.command(aliases=['dc', 'disconnect'])
-    async def leave(self, ctx):
+    @commands.command(aliases=['dc', 'leave'])
+    async def disconnect(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_connected():
             await voice.disconnect()
             print(f"The bot was told  to leave")
 
-    @commands.command(aliases=['pa', 'pau'])
-    async def pause(self, ctx):
-        voice = get(self.bot.voice_clients, guild=ctx.guild)
-
-        if voice and voice.is_playing():
-            await ctx.message.add_reaction(":thumbup:")
-            voice.pause()
-        else:
-            await ctx.send("Retard alert: Nie jest grane")
-
-    @commands.command(aliases=['p', 'pla'])
+    @commands.command(aliases=['p'])
     async def play(self, ctx, sound_name: str, voice_chat_name="none"):
         # Check if voice client is in right channel
         voice = ctx.guild.voice_client
@@ -87,9 +82,10 @@ class Basic(commands.Cog):
         if len(vid_id) > 0:
             link = "https://www.youtube.com/watch?v=" + vid_id[0][0]
             audio_source = animeDetector.download_youtube_audio(link)
-            sound_tuple = (voice, audio_source)
-            globalVar.mp3_queue.append(sound_tuple)
-            print("queued {}".format(link))
+            if audio_source:
+                sound_tuple = (voice, audio_source)
+                globalVar.mp3_queue.append(sound_tuple)
+                print("queued {}".format(link))
 
         # Else check saved sounds
         else:
@@ -110,7 +106,7 @@ class Basic(commands.Cog):
                         globalVar.mp3_queue.append(sound_tuple)
                         print("queued {}".format(entry[1]))
 
-    @commands.command(aliases=['ran', 'los'])
+    @commands.command(aliases=['ran'])
     async def random(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
         entry = choice(globalVar.mp3_names)
@@ -119,38 +115,12 @@ class Basic(commands.Cog):
         globalVar.mp3_queue.append(sound_tuple)
         print("queued {}".format(entry[1]))
 
-    @commands.command(aliases=['r', 'res'])
-    async def resume(self, ctx):
-        voice = get(self.bot.voice_clients, guild=ctx.guild)
-
-        if voice and voice.is_paused():
-            voice.resume()
-
-    @commands.command(aliases=['s', 'sto'])
-    async def stop(self, ctx):
+    @commands.command()
+    async def skip(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_playing():
             voice.stop()
-
-    @commands.command()
-    async def volume(self, ctx, value: int):
-        voice = get(self.bot.voice_clients, guild=ctx.guild)
-        voice.source = discord.PCMVolumeTransformer(voice.source)
-        voice.source.volume = value / 100
-        await ctx.send("Zmieniono głośność na {}%".format(value))
-        print("Volume changed to {}%".format(value))
-
-    @commands.command(aliases=['del', 'delete'])
-    async def remove(self, ctx, file_name):
-        if os.path.isfile(os.path.join(globalVar.mp3_loc, file_name)):
-            os.remove(os.path.join(globalVar.mp3_loc, file_name))
-            load_list()
-
-            await ctx.send(f"Usunięto: " + file_name)
-            print("Removed " + globalVar.mp3_loc + file_name)
-        else:
-            ctx.send("Nie ma takiego pliku")
 
     @commands.command(aliases=['l', 'sounds'])
     async def list(self, ctx):
@@ -194,25 +164,48 @@ class Basic(commands.Cog):
         await ctx.send(message)
 
     @commands.command()
+    async def reset(self, ctx):
+        voice = get(self.bot.voice_clients, guild=ctx.guild)
+        if voice and voice.is_connected():
+            await voice.disconnect()
+        if voice and voice.source:
+            voice.source.cleanup()
+
+        #Clear queue
+        i = len(globalVar.mp3_queue)
+        while i > 0:
+            i -= 1
+            entry = globalVar.mp3_queue.pop(i)
+            if globalVar.tmp_sounds_loc in entry[1] and os.path.isfile(entry[1]):
+                    os.remove(entry[1])
+            
+        print("Queue reset")
+
+    @commands.command()
+    async def shutdown(self, ctx):
+        print("Shutting down...")
+        await self.bot.close()
+
+    @commands.command()
     async def help(self, ctx):
         embed = discord.Embed(colour=discord.Colour.orange())
         embed.set_author(name='Help')
-        embed.add_field(name='play, p, pla', value='Nazwa albo numer', inline=False)
-        embed.add_field(name='list, l, lis', value='Lista dźwięków', inline=False)
-        embed.add_field(name='random,ran, los', value='Losowy dźwięk', inline=False)
-        embed.add_field(name='ticket', value='ticket przewinienie @ping', inline=False)
-        embed.add_field(name='remove,delete, del', value='delete nazwa.mp3', inline=False)
-        embed.add_field(name='rename, ren', value='rename stara_nazwa.mp3 nowa_nazwa.mp3', inline=False)
-        embed.add_field(name='volume', value='Zmiana głośności', inline=False)
-        embed.add_field(name='leave, dc, disconnect', value='Koniec dobrej zabawy', inline=False)
-        embed.add_field(name='pause, pau, pa', value='Wstrzymanie dobrej zabawy', inline=False)
-        embed.add_field(name='resume, r , res', value='Wznowienie dobrej zabawy', inline=False)
-        embed.add_field(name='stop,s, sto', value='Kiedy "cotentyp" leci zbyt długo', inline=False)
+        embed.add_field(name='play, p', value='Odtwórz dźwięk z listy lub Youtube', inline=False)
+        embed.add_field(name='skip', value='Pomiń odtwarzany plik', inline=False)
+        embed.add_field(name='reset', value='Wyczyść kolejkę', inline=False)
+        embed.add_field(name='queue, q', value='Kolejka', inline=False)
+        embed.add_field(name='list, sounds, l', value='Lista dźwięków', inline=False)
+        embed.add_field(name='random, r', value='Losowy dźwięk z listy', inline=False)
+        embed.add_field(name='disconnect, dc, leave', value='Wyjście bota z voice chatu', inline=False)
+        embed.add_field(name='ticket', value='Wystaw komuś jednego za anime. Użycie: ticket <powody> ping', inline=False)
+        embed.add_field(name='check', value='Sprawdź ile ktoś ma ticketów <id lub ping>', inline=False)
+        embed.add_field(name='shutdown', value='Restart bota', inline=False)
+
+
         await ctx.send(embed=embed)
 
     @play.before_invoke
     @random.before_invoke
-    @volume.before_invoke
     async def ensure_voice(self, ctx):
         if ctx.voice_client is None:
             if ctx.author.voice:

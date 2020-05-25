@@ -89,9 +89,15 @@ async def background_task():
 
                 # Play sound
                 voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(audio_source)))
+                # Lower youtube volume
+                if globalVar.tmp_sounds_loc in audio_source:
+                    voice.source = discord.PCMVolumeTransformer(voice.source)
+                    voice.source.volume = 0.5
+                
+                # Move queue
                 globalVar.mp3_queue.pop(0)
                 last_source = audio_source
-                print(f"Played {audio_source}")
+                print(f"Playing {audio_source}")
 
         #######################################################################
         # Banishment
