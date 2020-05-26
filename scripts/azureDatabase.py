@@ -1,7 +1,9 @@
 import os
-
 from azure.storage.blob import BlobServiceClient
 
+###############################################################################
+# This script allows upload and download from azure cloud
+###############################################################################
 
 # Upload to cloud
 def upload_to_azure(file_loc: str, file_name: str, container_name: str):

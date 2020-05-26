@@ -2,16 +2,17 @@ import os
 from random import choice
 
 # pylint: disable=fixme, import-error
-from scripts import globalVar
+from scripts import globalVars
 
+###############################################################################
+# This script generates sentences like that old man
+###############################################################################
 korwin_list = []
-
-
 def load_list():
     print("Loading lists...")
-    for counter, entry in enumerate(os.listdir(globalVar.korwin_loc)):
-        if os.path.isfile(os.path.join(globalVar.korwin_loc, entry)):
-            with open(globalVar.korwin_loc + str(counter) + ".txt", encoding='utf-8') as fp:
+    for counter, entry in enumerate(os.listdir(globalVars.korwin_loc)):
+        if os.path.isfile(os.path.join(globalVars.korwin_loc, entry)):
+            with open(globalVars.korwin_loc + str(counter) + ".txt", encoding='utf-8') as fp:
                 korwin_list.append(fp.read().splitlines())
     print("Korwin generator loaded")
 

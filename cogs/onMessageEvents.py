@@ -7,11 +7,14 @@ import discord
 from discord.ext import commands
 
 # pylint: disable=fixme, import-error
-from scripts import globalVar, korwinGenerator, azureDatabase, animeDetector
+from scripts import globalVars, korwinGenerator, azureDatabase, animeDetector, download
 from cogs import basicCommands
 
-violation_list = []
+###############################################################################
+# This cog reacts to sent messages
+###############################################################################
 
+violation_list = []
 
 class OnMessageEvent(commands.Cog):
     def __init__(self, bot):
@@ -47,7 +50,7 @@ class OnMessageEvent(commands.Cog):
 
     async def jojo_ref(self, message):
         ctx = await self.bot.get_context(message)
-        await ctx.send(file=discord.File(f"{globalVar.images_loc} jojo.png"))
+        await ctx.send(file=discord.File(f"{globalVars.images_loc} jojo.png"))
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -89,26 +92,26 @@ class OnMessageEvent(commands.Cog):
             #######################################################################################################
             if file_name.endswith(".mp3"):
                 # If it is a sound
-                if message.channel.id == globalVar.sounds_channel_id:
-                    if file_name in globalVar.mp3_names:
+                if message.channel.id == globalVars.sounds_channel_id:
+                    if file_name in globalVars.mp3_names:
                         await message.channel.send("Nazwa pliku zajęta.")
                     else:
-                        file_loc = globalVar.mp3_loc + file_name
+                        file_loc = globalVars.mp3_loc + file_name
                         await message.attachments[0].save(file_loc)
                         await message.add_reaction("👌")
 
                         # Upload file to cloud
-                        azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_mp3)
+                        azureDatabase.upload_to_azure(file_loc, file_name, globalVars.container_name_mp3)
                         # Reload mp3 list
                         basicCommands.load_list()
-                        print("Added " + globalVar.mp3_loc + file_name)
+                        print("Added " + globalVars.mp3_loc + file_name)
 
             #######################################################################################################
             #                                        IMAGE
             #######################################################################################################
             elif file_name.endswith(".png") or file_name.endswith(".jpg"):
                 print("Checking image...")
-                file_loc = globalVar.images_loc + file_name
+                file_loc = globalVars.images_loc + file_name
                 await message.attachments[0].save(file_loc)
 
                 detected_anime = animeDetector.detect_anime_image(file_loc)
@@ -125,7 +128,7 @@ class OnMessageEvent(commands.Cog):
             #######################################################################################################
             elif file_name.endswith(".mp4") or file_name.endswith(".webm"):
                 print("Checking video...")
-                file_loc = globalVar.images_loc + file_name
+                file_loc = globalVars.images_loc + file_name
                 await message.attachments[0].save(file_loc)
 
                 # Check video
@@ -143,7 +146,7 @@ class OnMessageEvent(commands.Cog):
             # If found vid id
             if vid_id[0][0] is not None:
                 link = "https://www.youtube.com/watch?v=" + vid_id[0][0]
-                file_loc = animeDetector.download_youtube_video(link)
+                file_loc = download.download_youtube_video(link)
 
                 # Check video
                 await self.detect_violation(message, file_loc)
@@ -183,16 +186,16 @@ class OnMessageEvent(commands.Cog):
 
                 if found_gif:
                     print(vid_link)
-                    file_loc = globalVar.images_loc + "test.gif"
-                    animeDetector.download_url(vid_link, file_loc)
+                    file_loc = globalVars.images_loc + "test.gif"
+                    download.download_url(vid_link, file_loc)
                     detected_anime = animeDetector.detect_anime_gif(file_loc)
                     # Clean up
                     os.remove(file_loc)
 
                 elif found_mp4:
                     print(vid_link)
-                    file_loc = globalVar.images_loc + "test.mp4"
-                    animeDetector.download_url(vid_link, file_loc)
+                    file_loc = globalVars.images_loc + "test.mp4"
+                    download.download_url(vid_link, file_loc)
                     detected_anime = animeDetector.detect_anime_video(file_loc)
                     # Clean up
                     os.remove(file_loc)

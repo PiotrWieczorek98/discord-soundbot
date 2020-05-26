@@ -7,31 +7,34 @@ from discord.ext import commands
 from discord.utils import get
 
 # pylint: disable=fixme, import-error
-from scripts import animeDetector, azureDatabase, globalVar
+from scripts import azureDatabase, globalVars, download
 
+###############################################################################
+# This cog contains bot's basic commands
+###############################################################################
 
 # Reload list of mp3
 def load_list():
     # Clear lists
-    globalVar.mp3_names.clear()
-    globalVar.mp3_tuples.clear()
+    globalVars.mp3_names.clear()
+    globalVars.mp3_tuples.clear()
 
     # Download new mp3 if found
-    print("Loading sounds...\n")
-    azureDatabase.download_from_azure(globalVar.mp3_loc, globalVar.container_name_mp3, False)
+    print("Loading sounds...")
+    azureDatabase.download_from_azure(globalVars.mp3_loc, globalVars.container_name_mp3, False)
 
     # Add mp3 to list
-    for entry in os.listdir(globalVar.mp3_loc):
-        if os.path.isfile(os.path.join(globalVar.mp3_loc, entry)) and entry != ".gitkeep":
-            globalVar.mp3_names.append(entry)
+    for entry in os.listdir(globalVars.mp3_loc):
+        if os.path.isfile(os.path.join(globalVars.mp3_loc, entry)) and entry != ".gitkeep":
+            globalVars.mp3_names.append(entry)
 
-    globalVar.mp3_names.sort()
+    globalVars.mp3_names.sort()
     counter = 0
 
-    for entry in globalVar.mp3_names:
+    for entry in globalVars.mp3_names:
         counter += 1
         name = entry.split("_", 1)[0]
-        globalVar.mp3_tuples.append((counter, entry, name))
+        globalVars.mp3_tuples.append((counter, entry, name))
     print("Sounds loaded\n")
 
 def volume(self, ctx, value: int):
@@ -45,18 +48,6 @@ class Basic(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         load_list()
-
-    @commands.command()
-    async def reload(self, ctx):
-        load_list()
-
-    @commands.command(aliases=['dc', 'leave'])
-    async def disconnect(self, ctx):
-        voice = get(self.bot.voice_clients, guild=ctx.guild)
-
-        if voice and voice.is_connected():
-            await voice.disconnect()
-            print(f"The bot was told  to leave")
 
     @commands.command(aliases=['p'])
     async def play(self, ctx, sound_name: str, voice_chat_name="none"):
@@ -78,41 +69,44 @@ class Basic(commands.Cog):
         link_regex = re.compile("http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?")
         vid_id = link_regex.findall(sound_name)
 
-        # If found vid id
+        # If found get the video id
         if len(vid_id) > 0:
+            # Transform to standard url
             link = "https://www.youtube.com/watch?v=" + vid_id[0][0]
-            audio_source = animeDetector.download_youtube_audio(link)
+            audio_source = download.download_youtube_audio(link)
             if audio_source:
                 sound_tuple = (voice, audio_source)
-                globalVar.mp3_queue.append(sound_tuple)
+                globalVars.mp3_queue.append(sound_tuple)
                 print("queued {}".format(link))
+            else:
+                await ctx.send.message("Błąd pobierania, spróbuj ponownie")
 
         # Else check saved sounds
         else:
             # Find sound
-            for entry in globalVar.mp3_tuples:
+            for entry in globalVars.mp3_tuples:
                 if sound_name.isdecimal():
                     if int(sound_name) in entry:
-                        audio_source = globalVar.mp3_loc + entry[1]
+                        audio_source = globalVars.mp3_loc + entry[1]
                         sound_tuple = (voice, audio_source)
-                        globalVar.mp3_queue.append(sound_tuple)
+                        globalVars.mp3_queue.append(sound_tuple)
                         print("queued {}".format(entry[1]))
                 else:
                     if not sound_name.endswith(".mp3"):
                         sound_name += ".mp3"
                     if sound_name in entry:
-                        audio_source = globalVar.mp3_loc + entry[1]
+                        audio_source = globalVars.mp3_loc + entry[1]
                         sound_tuple = (voice, audio_source)
-                        globalVar.mp3_queue.append(sound_tuple)
+                        globalVars.mp3_queue.append(sound_tuple)
                         print("queued {}".format(entry[1]))
 
     @commands.command(aliases=['ran'])
     async def random(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
-        entry = choice(globalVar.mp3_names)
-        audio_source = globalVar.mp3_loc + entry
+        entry = choice(globalVars.mp3_names)
+        audio_source = globalVars.mp3_loc + entry
         sound_tuple = (voice, audio_source)
-        globalVar.mp3_queue.append(sound_tuple)
+        globalVars.mp3_queue.append(sound_tuple)
         print("queued {}".format(entry[1]))
 
     @commands.command()
@@ -125,9 +119,9 @@ class Basic(commands.Cog):
     @commands.command(aliases=['l', 'sounds'])
     async def list(self, ctx):
         message = "```css\n[Lista Dźwięków]\n"
-        previous_name = globalVar.mp3_tuples[0][2]
+        previous_name = globalVars.mp3_tuples[0][2]
 
-        for entry in globalVar.mp3_tuples:
+        for entry in globalVars.mp3_tuples:
             if entry[0] < 10:
                 number = str(entry[0]) + ".  "
             else:
@@ -158,10 +152,21 @@ class Basic(commands.Cog):
     async def queue(self, ctx):
         message = "Kolejka:\n"
         counter = 0
-        for entry in globalVar.mp3_queue:
+        for entry in globalVars.mp3_queue:
             counter += 1
             message += f"{counter}. {entry[1]} \n"
-        await ctx.send(message)
+        if counter > 0:
+            await ctx.send(message)
+        else:
+            await ctx.send("Kolejka jest pusta")
+
+    @commands.command(aliases=['dc', 'leave'])
+    async def disconnect(self, ctx):
+        voice = get(self.bot.voice_clients, guild=ctx.guild)
+
+        if voice and voice.is_connected():
+            await voice.disconnect()
+            print(f"The bot was told  to leave")
 
     @commands.command()
     async def reset(self, ctx):
@@ -172,11 +177,11 @@ class Basic(commands.Cog):
             voice.source.cleanup()
 
         #Clear queue
-        i = len(globalVar.mp3_queue)
+        i = len(globalVars.mp3_queue)
         while i > 0:
             i -= 1
-            entry = globalVar.mp3_queue.pop(i)
-            if globalVar.tmp_sounds_loc in entry[1] and os.path.isfile(entry[1]):
+            entry = globalVars.mp3_queue.pop(i)
+            if globalVars.tmp_sounds_loc in entry[1] and os.path.isfile(entry[1]):
                     os.remove(entry[1])
             
         print("Queue reset")
@@ -188,8 +193,7 @@ class Basic(commands.Cog):
 
     @commands.command()
     async def help(self, ctx):
-        embed = discord.Embed(colour=discord.Colour.orange())
-        embed.set_author(name='Help')
+        embed = discord.Embed(title="Help",colour=discord.Colour.blue())
         embed.add_field(name='play, p', value='Odtwórz dźwięk z listy lub Youtube', inline=False)
         embed.add_field(name='skip', value='Pomiń odtwarzany plik', inline=False)
         embed.add_field(name='reset', value='Wyczyść kolejkę', inline=False)

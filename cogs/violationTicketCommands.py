@@ -8,24 +8,27 @@ from PIL import ImageFont
 from discord.ext import commands
 
 # pylint: disable=fixme, import-error
-from scripts import azureDatabase, globalVar
+from scripts import azureDatabase, globalVars
 
+###############################################################################
+# This cog allows sending tickets to people who send anime related posts
+###############################################################################
 
 def load_list():
-    azureDatabase.download_from_azure(globalVar.txt_loc, globalVar.container_name_txt, True)
+    azureDatabase.download_from_azure(globalVars.txt_loc, globalVars.container_name_txt, True)
 
-    file = open(globalVar.txt_loc + globalVar.tickets_txt, encoding='utf-8')
+    file = open(globalVars.txt_loc + globalVars.tickets_txt, encoding='utf-8')
     lines = file.read().splitlines()
     for entry in lines:
         str_tuple = entry.split(" ")
         int_tuple = (int(str_tuple[0]), int(str_tuple[1]))
-        globalVar.ticket_counter.append(int_tuple)
+        globalVars.ticket_counter.append(int_tuple)
     file.close()
-    print("Ticket list loaded")
+    print("Ticket list loaded\n")
 
 
 def get_number_of_violations(user_id: int):
-    for entry in globalVar.ticket_counter:
+    for entry in globalVars.ticket_counter:
         if user_id == entry[0]:
             return entry[1]
     return 0
@@ -33,55 +36,55 @@ def get_number_of_violations(user_id: int):
 
 def change_counter(user_id: int, increment: bool):
     found = False
-    for i in range(len(globalVar.ticket_counter)):
-        if user_id == globalVar.ticket_counter[i][0]:
+    for i in range(len(globalVars.ticket_counter)):
+        if user_id == globalVars.ticket_counter[i][0]:
             found = True
             if increment:
-                changed = (globalVar.ticket_counter[i][0], globalVar.ticket_counter[i][1] + 1)
-            elif globalVar.ticket_counter[i][1] > 0:
-                changed = (globalVar.ticket_counter[i][0], globalVar.ticket_counter[i][1] - 1)
+                changed = (globalVars.ticket_counter[i][0], globalVars.ticket_counter[i][1] + 1)
+            elif globalVars.ticket_counter[i][1] > 0:
+                changed = (globalVars.ticket_counter[i][0], globalVars.ticket_counter[i][1] - 1)
             else:
-                changed = (globalVar.ticket_counter[i][0], 0)
-            globalVar.ticket_counter[i] = changed
+                changed = (globalVars.ticket_counter[i][0], 0)
+            globalVars.ticket_counter[i] = changed
 
     # Add new id if not found
     if not found and increment:
-        globalVar.ticket_counter.append((user_id, 1))
-        file = open(globalVar.txt_loc + "tickets.txt", "a", encoding='utf-8')
+        globalVars.ticket_counter.append((user_id, 1))
+        file = open(globalVars.txt_loc + "tickets.txt", "a", encoding='utf-8')
         file.write(str(user_id) + " 1\n")
         file.close()
 
     # Rewrite file after update
-    file = open(globalVar.txt_loc + "tickets.txt", "w", encoding='utf-8')
-    for entry in globalVar.ticket_counter:
+    file = open(globalVars.txt_loc + "tickets.txt", "w", encoding='utf-8')
+    for entry in globalVars.ticket_counter:
         file.write(str(entry[0]) + " " + str(entry[1]) + "\n")
     file.close()
 
     # Upload files to cloud
     file_name = "tickets.txt"
-    file_loc = globalVar.txt_loc + file_name
-    azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_txt)
+    file_loc = globalVars.txt_loc + file_name
+    azureDatabase.upload_to_azure(file_loc, file_name, globalVars.container_name_txt)
 
 
 async def banishment(target, penalty):
     # Add role
-    role = target.guild.get_role(globalVar.banished_role)
+    role = target.guild.get_role(globalVars.banished_role)
     if role is not None:
         await target.add_roles(role)
     # Add to timer
     found = False
-    for i in range(len(globalVar.banished_users)):
-        if target == globalVar.banished_users[i][0]:
-            globalVar.banished_users[i] = (target, 0, penalty)
+    for i in range(len(globalVars.banished_users)):
+        if target == globalVars.banished_users[i][0]:
+            globalVars.banished_users[i] = (target, 0, penalty)
             found = True
 
     if not found:
-        globalVar.banished_users.append((target, 0, penalty))
+        globalVars.banished_users.append((target, 0, penalty))
 
 
 def get_ticket(violation_list: [str], user_from: str, user_to: str):
-    background = Image.open(globalVar.images_loc + "background.png")
-    check = Image.open(globalVar.images_loc + "check.png")
+    background = Image.open(globalVars.images_loc + "background.png")
+    check = Image.open(globalVars.images_loc + "check.png")
     # Checkboxes
     violation_types = [("game", 58, 195), ("meme", 419, 195), ("hentai", 782, 195), ("trap", 1052, 195),
                        ("girl", 58, 245), ("music", 419, 245), ("manga", 782, 245), ("related", 1052, 245)]
@@ -97,7 +100,7 @@ def get_ticket(violation_list: [str], user_from: str, user_to: str):
 
     # Write text
     draw = ImageDraw.Draw(ticket)
-    font = ImageFont.truetype(globalVar.fonts_loc + "calibrib.ttf", 45)
+    font = ImageFont.truetype(globalVars.fonts_loc + "calibrib.ttf", 45)
     # Time:
     draw.text((275, 480), date.today().strftime("%d/%m/%Y"), (0, 0, 0), font=font)
     # Place:
@@ -116,7 +119,7 @@ def get_ticket(violation_list: [str], user_from: str, user_to: str):
     draw.text((275, 677), penalty, (0, 0, 0), font=font)
 
     # Save ticket
-    ticket.save(globalVar.images_loc + "ticket.png")
+    ticket.save(globalVars.images_loc + "ticket.png")
 
 
 class Ticket(commands.Cog):
@@ -170,8 +173,8 @@ class Ticket(commands.Cog):
 
         # Upload files to cloud
         file_name = "tickets.txt"
-        file_loc = globalVar.txt_loc + file_name
-        azureDatabase.upload_to_azure(file_loc, file_name, globalVar.container_name_txt)
+        file_loc = globalVars.txt_loc + file_name
+        azureDatabase.upload_to_azure(file_loc, file_name, globalVars.container_name_txt)
 
         number_of_violations = get_number_of_violations(target_id)
         message = f"To twoje {number_of_violations} przewinienie"
@@ -182,7 +185,7 @@ class Ticket(commands.Cog):
             message += f"\n Z powodu {number_of_violations} naruszen dostajesz banicje na {penalty} + min"
             print("Banished " + str(target.display_name))
 
-        await ctx.send(content=message, file=discord.File(globalVar.images_loc + 'ticket.png'))
+        await ctx.send(content=message, file=discord.File(globalVars.images_loc + 'ticket.png'))
         print(f"id: {target_id} ma teraz {number_of_violations} przewinien(Ticket).")
 
     @commands.command()
