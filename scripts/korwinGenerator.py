@@ -9,12 +9,11 @@ from scripts import globalVars
 ###############################################################################
 korwin_list = []
 def load_list():
-    print("Loading lists...")
     for counter, entry in enumerate(os.listdir(globalVars.korwin_loc)):
         if os.path.isfile(os.path.join(globalVars.korwin_loc, entry)):
             with open(globalVars.korwin_loc + str(counter) + ".txt", encoding='utf-8') as fp:
                 korwin_list.append(fp.read().splitlines())
-    print("Korwin generator loaded")
+    print("\tKorwin generator loaded")
 
 
 async def korwin_generator(message):

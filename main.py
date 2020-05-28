@@ -24,9 +24,12 @@ bot.remove_command("list")
 initial_extensions = ["cogs.basicCommands", "cogs.violationTicketCommands", "cogs.onMessageEvents"]
 for extension in initial_extensions:
     try:
+        print(f"Loading {extension}...")
         bot.load_extension(extension)
+        print(f"Loaded {extension}.\n")
+
     except Exception as e:
-        print(f'Failed to load extension {extension}.')
+        print(f"Failed to load extension {extension}.")
 
 
 ###############################################################################
@@ -133,6 +136,7 @@ async def background_task():
 async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(globalVars.bot_prefix))
     bot.bg_task = bot.loop.create_task(background_task())
+    print("Loading lists...")
     korwinGenerator.load_list()
     animeDetector.load_lists()
 

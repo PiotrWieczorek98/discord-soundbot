@@ -179,4 +179,4 @@ def load_lists():
             list_names[i].append(line)
 
         file.close()
-        print(f"{file_names[i]} list loaded")
+        print(f"\t{file_names[i]} list loaded")

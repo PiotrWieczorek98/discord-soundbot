@@ -15,16 +15,17 @@ from scripts import azureDatabase, globalVars
 ###############################################################################
 
 def load_list():
+    print("\tLoading txt files...")
     azureDatabase.download_from_azure(globalVars.txt_loc, globalVars.container_name_txt, True)
-
     file = open(globalVars.txt_loc + globalVars.tickets_txt, encoding='utf-8')
     lines = file.read().splitlines()
+    
     for entry in lines:
         str_tuple = entry.split(" ")
         int_tuple = (int(str_tuple[0]), int(str_tuple[1]))
         globalVars.ticket_counter.append(int_tuple)
     file.close()
-    print("Ticket list loaded\n")
+    print("\tTxt files loaded.")
 
 
 def get_number_of_violations(user_id: int):

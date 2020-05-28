@@ -20,7 +20,7 @@ def upload_to_azure(file_loc: str, file_name: str, container_name: str):
         with open(file_loc, "rb") as data:
             blob_client.upload_blob(data, overwrite=True)
     except:
-        print("failed uploading to azure")
+        print("Failed uploading to azure!")
 
 
 # Download from cloud
@@ -39,8 +39,8 @@ def download_from_azure(file_loc: str, container_name: str, overwrite: bool):
             blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob.name)
             file_loc = loc_base + blob.name
             if not os.path.isfile(file_loc) or overwrite:
-                print("Downloading blob to " + file_loc)
+                print("\tDownloading blob to " + file_loc)
                 with open(file_loc, "wb") as download_file:
                     download_file.write(blob_client.download_blob().readall())
     except:
-        print("failed downloading from azure")
+        print("Failed downloading from azure!")

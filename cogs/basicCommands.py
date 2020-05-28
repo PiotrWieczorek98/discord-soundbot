@@ -20,7 +20,7 @@ def load_list():
     globalVars.mp3_tuples.clear()
 
     # Download new mp3 if found
-    print("Loading sounds...")
+    print("\tLoading sounds...")
     azureDatabase.download_from_azure(globalVars.mp3_loc, globalVars.container_name_mp3, False)
 
     # Add mp3 to list
@@ -35,7 +35,7 @@ def load_list():
         counter += 1
         name = entry.split("_", 1)[0]
         globalVars.mp3_tuples.append((counter, entry, name))
-    print("Sounds loaded\n")
+    print("\tSounds loaded")
 
 def volume(self, ctx, value: int):
     voice = get(self.bot.voice_clients, guild=ctx.guild)
@@ -51,19 +51,37 @@ class Basic(commands.Cog):
 
     @commands.command(aliases=['p'])
     async def play(self, ctx, sound_name: str, voice_chat_name="none"):
+        #########################################################################################
         # Check if voice client is in right channel
-        voice = ctx.guild.voice_client
-        if voice_chat_name != "none":
-            for channel in ctx.guild.voice_channels:
-                if channel.name == voice_chat_name:
-                    if voice and voice.is_connected():
-                        await voice.disconnect()
-                        await channel.connect()
-                    else:
-                        await channel.connect()
-                    voice = ctx.guild.voice_client
+        #########################################################################################
+        found_voice_chat = False
+        for voice_chat in ctx.guild.voice_channels:
+            if voice_chat_name == voice_chat.name:
+                found_voice_chat = True
 
+        if voice_chat_name == "none" or not found_voice_chat:
+            if ctx.author.voice:
+                found_voice_chat = True
+                voice_chat_name = ctx.author.voice.channel.name
+
+        for voice_channel in ctx.guild.voice_channels:
+            if voice_channel.name == voice_chat_name:
+                if ctx.voice_client and voice_channel.name != ctx.voice_client.channel.name:
+                    await ctx.voice_client.disconnect()
+                    await voice_channel.connect()
+                    break
+                elif not ctx.voice_client:
+                    await voice_channel.connect()
+                    break                   
+
+        if not found_voice_chat:
+            return
+        voice = ctx.voice_client
+        
+        #########################################################################################
         # check if it is a youtube video
+        #########################################################################################
+
         # Regex for yt link, extracts id
         # pylint: disable=fixme, anomalous-backslash-in-string
         link_regex = re.compile("http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?")
@@ -79,9 +97,11 @@ class Basic(commands.Cog):
                 globalVars.mp3_queue.append(sound_tuple)
                 print("queued {}".format(link))
             else:
-                await ctx.send.message("Błąd pobierania, spróbuj ponownie")
+                await ctx.send("Błąd pobierania, spróbuj ponownie")
 
+        #########################################################################################
         # Else check saved sounds
+        #########################################################################################
         else:
             # Find sound
             for entry in globalVars.mp3_tuples:
@@ -102,7 +122,11 @@ class Basic(commands.Cog):
 
     @commands.command(aliases=['ran'])
     async def random(self, ctx):
-        voice = get(self.bot.voice_clients, guild=ctx.guild)
+        if ctx.voice_client and ctx.voice_client.is_connected():
+            await ctx.voice_client.disconnect()
+        await ctx.author.voice.channel.connect()
+
+        voice = ctx.voice_client
         entry = choice(globalVars.mp3_names)
         audio_source = globalVars.mp3_loc + entry
         sound_tuple = (voice, audio_source)
@@ -111,8 +135,7 @@ class Basic(commands.Cog):
 
     @commands.command()
     async def skip(self, ctx):
-        voice = get(self.bot.voice_clients, guild=ctx.guild)
-
+        voice = ctx.voice_client
         if voice and voice.is_playing():
             voice.stop()
 
@@ -162,15 +185,14 @@ class Basic(commands.Cog):
 
     @commands.command(aliases=['dc', 'leave'])
     async def disconnect(self, ctx):
-        voice = get(self.bot.voice_clients, guild=ctx.guild)
-
+        voice = ctx.voice_client
         if voice and voice.is_connected():
             await voice.disconnect()
             print(f"The bot was told  to leave")
 
     @commands.command()
     async def reset(self, ctx):
-        voice = get(self.bot.voice_clients, guild=ctx.guild)
+        voice = ctx.voice_client
         if voice and voice.is_connected():
             await voice.disconnect()
         if voice and voice.source:
@@ -185,6 +207,7 @@ class Basic(commands.Cog):
                     os.remove(entry[1])
             
         print("Queue reset")
+        await ctx.send("Kolejka wyczyszczona.")
 
     @commands.command()
     async def shutdown(self, ctx):
@@ -204,17 +227,7 @@ class Basic(commands.Cog):
         embed.add_field(name='ticket', value='Wystaw komuś jednego za anime. Użycie: ticket <powody> ping', inline=False)
         embed.add_field(name='check', value='Sprawdź ile ktoś ma ticketów <id lub ping>', inline=False)
         embed.add_field(name='shutdown', value='Restart bota', inline=False)
-
-
         await ctx.send(embed=embed)
-
-    @play.before_invoke
-    @random.before_invoke
-    async def ensure_voice(self, ctx):
-        if ctx.voice_client is None:
-            if ctx.author.voice:
-                await ctx.author.voice.channel.connect()
-
 
 def setup(bot):
     bot.add_cog(Basic(bot))

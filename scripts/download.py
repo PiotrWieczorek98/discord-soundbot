@@ -1,6 +1,7 @@
 # pylint: disable=fixme, import-error
 from scripts import globalVars
 from pytube import YouTube
+from pytube import Playlist
 import requests
 
 ####################################################################################
@@ -17,8 +18,13 @@ def download_youtube_video(link: str):
         vid.streams.filter(progressive=True).get_by_resolution("720p").download(globalVars.tmp_videos_loc, file_name)
 
     return f"{file_loc}.mp4"
-
-
+"""
+def download_youtube_playlist(link:str):
+    playlist = Playlist(link)
+    print(f"Number of videos in playlist: {len(playlist.video_urls)}")
+    playlist.
+    playlist.download_all()
+"""
 def download_youtube_audio(link: str):
     file_name = ''.join(e for e in link if e.isalnum())
     file_loc = globalVars.tmp_sounds_loc
