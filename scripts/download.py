@@ -7,37 +7,44 @@ import requests
 ####################################################################################
 # This script contains methods to download video or audio from youtube or given URL
 ####################################################################################
-
+to_download = []
+voice = None
 def download_youtube_video(link: str):
     vid = YouTube(link)
     file_name = "sample"
     file_loc = globalVars.tmp_videos_loc + file_name
-    if vid.streams.filter(progressive=True).get_by_resolution("720p") is None:
-        vid.streams.filter(progressive=True).get_highest_resolution().download(globalVars.tmp_videos_loc, file_name)
-    else:
-        vid.streams.filter(progressive=True).get_by_resolution("720p").download(globalVars.tmp_videos_loc, file_name)
+    streams = vid.streams.filter(progressive=True, file_extension='mp4')
+    streams.order_by('resolution').desc().first().download(globalVars.tmp_videos_loc, file_name)
 
     return f"{file_loc}.mp4"
-"""
-def download_youtube_playlist(link:str):
-    playlist = Playlist(link)
-    print(f"Number of videos in playlist: {len(playlist.video_urls)}")
-    playlist.
-    playlist.download_all()
-"""
+
 def download_youtube_audio(link: str):
-    file_name = ''.join(e for e in link if e.isalnum())
-    file_loc = globalVars.tmp_sounds_loc
     try:
         vid = YouTube(link)
-        vid.streams.get_audio_only().download(file_loc, file_name)
+        streams = vid.streams.filter(only_audio=True)
+        file_loc = streams[0].download(globalVars.tmp_sounds_loc)
     except:
         print(f"ERROR: downloading {link} failed!")
         return None
-
-    print(f"{file_loc}{file_name}.mp4")
-    return f"{file_loc}{file_name}.mp4"
-
+    return f"{file_loc}"
+"""
+def download_youtube_audio_playlist(urls: [str], voice):
+    for url in urls:
+        loc = download_youtube_audio(url)
+        if loc:
+            sound_tuple = (voice, loc)
+            globalVars.mp3_queue.append(sound_tuple)
+            print("queued {}".format(loc))
+"""
+def get_youtube_playlist_urls(link:str):
+    try:
+        playlist = Playlist(link)
+        print(f"Number of videos in playlist: {len(playlist.video_urls)}")
+        urls = playlist.video_urls
+    except:
+        print(f"ERROR: downloading {link} failed!")
+        return None
+    return urls
 
 def download_from_url(url, file_loc):
     # Read the gif from the web, save to the disk

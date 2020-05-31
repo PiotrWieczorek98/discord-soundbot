@@ -30,19 +30,18 @@ for extension in initial_extensions:
 
     except Exception as e:
         print(f"Failed to load extension {extension}.")
+        print(e)
 
 
 ###############################################################################
-#                               BACKGROUND TASK
+#                               BACKGROUND TASKS
 ###############################################################################
-async def background_task():
+async def time_task():
     papal_played = False
-    last_source = ""
     while not bot.is_closed():
         #######################################################################
         # Papal hour - play barka at 21.37
         #######################################################################
-
         if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 37 and not papal_played:
             papal_played = True
             # Find voice channel with most members
@@ -73,10 +72,34 @@ async def background_task():
             if voice and voice.is_connected():
                 await voice.disconnect()
 
+
         #######################################################################
-        # Audio Task - queue
+        # Banishment
         #######################################################################
 
+        for i in range(len(globalVars.banished_users)):
+            incremented = (
+                globalVars.banished_users[i][0],
+                globalVars.banished_users[i][1] + 1,
+                globalVars.banished_users[i][2])
+
+            # Check if penalty time passed
+            if incremented[1] >= incremented[2]:
+                globalVars.banished_users.pop(i)
+                role = incremented[0].guild.get_role(globalVars.banished_role)
+                await incremented[0].remove_roles(role)
+                print(f"Removed from banishment {incremented[0].display_name}")
+            else:
+                globalVars.banished_users[i] = incremented
+
+        await asyncio.sleep(5)
+
+async def queue_task():
+    #######################################################################
+    # Audio Task - queue
+    #######################################################################
+    last_source = ""
+    while not bot.is_closed():
         if len(globalVars.mp3_queue) > 0:
             # sound tuple = voice client + audio source
             voice = globalVars.mp3_queue[0][0]
@@ -107,27 +130,15 @@ async def background_task():
                 last_source = audio_source
                 print(f"Playing {audio_source}")
 
-        #######################################################################
-        # Banishment
-        #######################################################################
-
-        for i in range(len(globalVars.banished_users)):
-            incremented = (
-                globalVars.banished_users[i][0],
-                globalVars.banished_users[i][1] + 1,
-                globalVars.banished_users[i][2])
-
-            # Check if penalty time passed
-            if incremented[1] >= incremented[2]:
-                globalVars.banished_users.pop(i)
-                role = incremented[0].guild.get_role(globalVars.banished_role)
-                await incremented[0].remove_roles(role)
-                print(f"Removed from banishment {incremented[0].display_name}")
-            else:
-                globalVars.banished_users[i] = incremented
-
         await asyncio.sleep(1)
 
+async def download_task():
+    #######################################################################
+    # downloading in background
+    #######################################################################
+    while not bot.is_closed():
+
+        await asyncio.sleep(1)
 
 ###############################################################################
 # WHEN READY CHANGE STATUS AND CREATE BACKGROUND TASK
@@ -135,7 +146,10 @@ async def background_task():
 @bot.event
 async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(globalVars.bot_prefix))
-    bot.bg_task = bot.loop.create_task(background_task())
+    bot.loop.create_task(time_task())
+    bot.loop.create_task(queue_task())
+    #bot.loop.create_task(download_task())
+
     print("Loading lists...")
     korwinGenerator.load_list()
     animeDetector.load_lists()

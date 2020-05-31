@@ -1,5 +1,6 @@
 import os
 import re
+import asyncio
 from random import choice
 
 import discord
@@ -81,23 +82,25 @@ class Basic(commands.Cog):
         #########################################################################################
         # check if it is a youtube video
         #########################################################################################
-
-        # Regex for yt link, extracts id
-        # pylint: disable=fixme, anomalous-backslash-in-string
-        link_regex = re.compile("http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?")
-        vid_id = link_regex.findall(sound_name)
-
-        # If found get the video id
-        if len(vid_id) > 0:
-            # Transform to standard url
-            link = "https://www.youtube.com/watch?v=" + vid_id[0][0]
-            audio_source = download.download_youtube_audio(link)
+        if "youtu" in sound_name:
+            # if it is a playlist get urls of videos in it
+            """
+            if "&list=" in sound_name:
+                urls = download.get_youtube_playlist_urls(sound_name)
+                if urls:
+                    for url in urls:
+                        globalVars.download_queue.append((voice, url))
+                else:
+                    await ctx.send("Błąd pobierania")
+            else:
+                """
+            audio_source = download.download_youtube_audio(sound_name)
             if audio_source:
                 sound_tuple = (voice, audio_source)
                 globalVars.mp3_queue.append(sound_tuple)
-                print("queued {}".format(link))
+                print("queued {}".format(sound_name))
             else:
-                await ctx.send("Błąd pobierania, spróbuj ponownie")
+                await ctx.send("Błąd pobierania")
 
         #########################################################################################
         # Else check saved sounds
@@ -133,7 +136,7 @@ class Basic(commands.Cog):
         globalVars.mp3_queue.append(sound_tuple)
         print("queued {}".format(entry[1]))
 
-    @commands.command()
+    @commands.command(aliases=['s', 'stop'])
     async def skip(self, ctx):
         voice = ctx.voice_client
         if voice and voice.is_playing():
@@ -218,7 +221,7 @@ class Basic(commands.Cog):
     async def help(self, ctx):
         embed = discord.Embed(title="Help",colour=discord.Colour.blue())
         embed.add_field(name='play, p', value='Odtwórz dźwięk z listy lub Youtube', inline=False)
-        embed.add_field(name='skip', value='Pomiń odtwarzany plik', inline=False)
+        embed.add_field(name='skip, stop, s', value='Pomiń odtwarzany plik', inline=False)
         embed.add_field(name='reset', value='Wyczyść kolejkę', inline=False)
         embed.add_field(name='queue, q', value='Kolejka', inline=False)
         embed.add_field(name='list, sounds, l', value='Lista dźwięków', inline=False)

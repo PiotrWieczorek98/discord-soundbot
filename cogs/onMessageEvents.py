@@ -135,21 +135,13 @@ class OnMessageEvent(commands.Cog):
                 await self.detect_violation(message, file_loc)
 
         ###########################################################################################################
-        #                                           YOUTUBE
+        #                                         YOUTUBE
         ###########################################################################################################
-        if "youtu" in str(message.content) and "boi play" not in str(message.content):
-            print("Checking youtube video...")
-            # Regex for yt link, extracts id
-            # pylint: disable=fixme, anomalous-backslash-in-string
-            link_regex = re.compile('http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?')
-            vid_id = link_regex.findall(message.content)
-            # If found vid id
-            if vid_id[0][0] is not None:
-                link = "https://www.youtube.com/watch?v=" + vid_id[0][0]
-                file_loc = download.download_youtube_video(link)
-
-                # Check video
-                await self.detect_violation(message, file_loc)
+        if "youtu" in str(message.content) and \
+        ("boi play" not in str(message.content) or "boi p" not in str(message.content)):
+            file_loc = download.download_youtube_video(str(message.content))
+            # Check video
+            await self.detect_violation(message, file_loc)
 
         ###########################################################################################################
         #                                           GIF
