@@ -15,6 +15,7 @@ tmp_images_loc = "data/tmp/images/"
 
 # lists
 mp3_queue = []
+download_queue = []
 mp3_names = []
 mp3_tuples = []
 ticket_counter = []

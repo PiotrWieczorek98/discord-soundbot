@@ -84,23 +84,13 @@ class Basic(commands.Cog):
         #########################################################################################
         if "youtu" in sound_name:
             # if it is a playlist get urls of videos in it
-            """
             if "&list=" in sound_name:
                 urls = download.get_youtube_playlist_urls(sound_name)
                 if urls:
                     for url in urls:
                         globalVars.download_queue.append((voice, url))
-                else:
-                    await ctx.send("Błąd pobierania")
             else:
-                """
-            audio_source = download.download_youtube_audio(sound_name)
-            if audio_source:
-                sound_tuple = (voice, audio_source)
-                globalVars.mp3_queue.append(sound_tuple)
-                print("queued {}".format(sound_name))
-            else:
-                await ctx.send("Błąd pobierania")
+                globalVars.download_queue.append((voice, sound_name))
 
         #########################################################################################
         # Else check saved sounds
@@ -113,7 +103,7 @@ class Basic(commands.Cog):
                         audio_source = globalVars.mp3_loc + entry[1]
                         sound_tuple = (voice, audio_source)
                         globalVars.mp3_queue.append(sound_tuple)
-                        print("queued {}".format(entry[1]))
+                        print(f"Queued {entry[1]}")
                 else:
                     if not sound_name.endswith(".mp3"):
                         sound_name += ".mp3"
@@ -121,7 +111,7 @@ class Basic(commands.Cog):
                         audio_source = globalVars.mp3_loc + entry[1]
                         sound_tuple = (voice, audio_source)
                         globalVars.mp3_queue.append(sound_tuple)
-                        print("queued {}".format(entry[1]))
+                        print(f"Queued {entry[1]}")
 
     @commands.command(aliases=['ran'])
     async def random(self, ctx):
@@ -134,9 +124,9 @@ class Basic(commands.Cog):
         audio_source = globalVars.mp3_loc + entry
         sound_tuple = (voice, audio_source)
         globalVars.mp3_queue.append(sound_tuple)
-        print("queued {}".format(entry[1]))
+        print(f"Queued {entry[1]}")
 
-    @commands.command(aliases=['s', 'stop'])
+    @commands.command(aliases=['s'])
     async def skip(self, ctx):
         voice = ctx.voice_client
         if voice and voice.is_playing():
@@ -194,14 +184,7 @@ class Basic(commands.Cog):
             print(f"The bot was told  to leave")
 
     @commands.command()
-    async def reset(self, ctx):
-        voice = ctx.voice_client
-        if voice and voice.is_connected():
-            await voice.disconnect()
-        if voice and voice.source:
-            voice.source.cleanup()
-
-        #Clear queue
+    async def stop(self, ctx):
         i = len(globalVars.mp3_queue)
         while i > 0:
             i -= 1
@@ -221,8 +204,8 @@ class Basic(commands.Cog):
     async def help(self, ctx):
         embed = discord.Embed(title="Help",colour=discord.Colour.blue())
         embed.add_field(name='play, p', value='Odtwórz dźwięk z listy lub Youtube', inline=False)
-        embed.add_field(name='skip, stop, s', value='Pomiń odtwarzany plik', inline=False)
-        embed.add_field(name='reset', value='Wyczyść kolejkę', inline=False)
+        embed.add_field(name='skip, s', value='Pomiń odtwarzany plik', inline=False)
+        embed.add_field(name='stop', value='Wyczyść kolejkę', inline=False)
         embed.add_field(name='queue, q', value='Kolejka', inline=False)
         embed.add_field(name='list, sounds, l', value='Lista dźwięków', inline=False)
         embed.add_field(name='random, r', value='Losowy dźwięk z listy', inline=False)

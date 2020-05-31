@@ -1,35 +1,3 @@
-import asyncio
-import datetime
-import os
-import re
-
-import discord
-from discord.ext import commands
-
-from scripts import animeDetector,globalVars, korwinGenerator, download
-
-###############################################################################
-#                                   SETUP
-###############################################################################
-# SET PREFIX, REMOVE COMMANDS TO REPLACE IT LATER, LOAD FILES
-print("Bot starts up...\n")
-
-bot = commands.Bot(command_prefix=globalVars.bot_prefix)
-bot.remove_command("help")
-bot.remove_command("list")
-
-# Load cogs - commands in different files
-initial_extensions = ["cogs.basicCommands", "cogs.violationTicketCommands", "cogs.onMessageEvents"]
-for extension in initial_extensions:
-    try:
-        print(f"Loading {extension}...")
-        bot.load_extension(extension)
-        print(f"Loaded {extension}.\n")
-
-    except Exception as e:
-        print(f"Failed to load extension {extension}.")
-        print(e)
-
 ###############################################################################
 #                               BACKGROUND TASKS
 ###############################################################################
@@ -91,10 +59,10 @@ async def time_task():
 
         await asyncio.sleep(5)
 
-#######################################################################
-# Voice channel play queue
-#######################################################################
 async def queue_task():
+    #######################################################################
+    # Audio Task - queue
+    #######################################################################
     last_source = ""
     while not bot.is_closed():
         if len(globalVars.mp3_queue) > 0:
@@ -129,35 +97,18 @@ async def queue_task():
 
         await asyncio.sleep(1)
 
-#######################################################################
-# Downloading in background queue
-#######################################################################
 async def download_task():
+    #######################################################################
+    # Downloading in background
+    #######################################################################
     while not bot.is_closed():
         if len(globalVars.download_queue) > 0:
-            voice, url = globalVars.download_queue.pop(0)
-            loc = download.download_youtube_audio(url)
-            if loc:
-                sound_tuple = (voice, loc)
-                globalVars.mp3_queue.append(sound_tuple)
-                print(f"Queued {loc}")
+            while len(globalVars.download_queue) > 0:
+                voice, url = globalVars.download_queue.pop(0)
+                loc = download.download_youtube_audio(url)
+                if loc:
+                    sound_tuple = (voice, loc)
+                    globalVars.mp3_queue.append(sound_tuple)
+                    print(f"Queued {loc}")
 
         await asyncio.sleep(1)
-
-###############################################################################
-# WHEN READY CHANGE STATUS AND CREATE BACKGROUND TASK
-###############################################################################
-@bot.event
-async def on_ready():
-    await bot.change_presence(status=discord.Status.online, activity=discord.Game(globalVars.bot_prefix))
-    bot.loop.create_task(time_task())
-    bot.loop.create_task(queue_task())
-    bot.loop.create_task(download_task())
-
-    print("Loading lists...")
-    korwinGenerator.load_list()
-    animeDetector.load_lists()
-
-    print(f"\nLogged in as: {bot.user.name}\n")
-
-bot.run(os.getenv('BOT_TOKEN'))

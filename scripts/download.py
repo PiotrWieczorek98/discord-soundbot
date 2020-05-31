@@ -27,15 +27,7 @@ def download_youtube_audio(link: str):
         print(f"ERROR: downloading {link} failed!")
         return None
     return f"{file_loc}"
-"""
-def download_youtube_audio_playlist(urls: [str], voice):
-    for url in urls:
-        loc = download_youtube_audio(url)
-        if loc:
-            sound_tuple = (voice, loc)
-            globalVars.mp3_queue.append(sound_tuple)
-            print("queued {}".format(loc))
-"""
+
 def get_youtube_playlist_urls(link:str):
     try:
         playlist = Playlist(link)
