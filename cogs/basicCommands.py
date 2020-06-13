@@ -7,7 +7,6 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 
-# pylint: disable=fixme, import-error
 from scripts import azureDatabase, globalVars, download
 
 ###############################################################################
