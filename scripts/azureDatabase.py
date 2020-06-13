@@ -1,5 +1,7 @@
 import os
+
 from azure.storage.blob import BlobServiceClient
+
 
 ###############################################################################
 # This script allows upload and download from azure cloud
@@ -39,7 +41,7 @@ def download_from_azure(file_loc: str, container_name: str, overwrite: bool):
             blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob.name)
             file_loc = loc_base + blob.name
             if not os.path.isfile(file_loc) or overwrite:
-                print("\tDownloading blob to " + file_loc)
+                print(f'\fDownloading blob to {file_loc}')
                 with open(file_loc, "wb") as download_file:
                     download_file.write(blob_client.download_blob().readall())
     except:

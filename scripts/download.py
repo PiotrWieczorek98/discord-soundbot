@@ -1,14 +1,16 @@
-# pylint: disable=fixme, import-error
-from scripts import globalVars
-from pytube import YouTube
-from pytube import Playlist
 import requests
+from pytube import Playlist
+from pytube import YouTube
+
+from scripts import globalVars
 
 ####################################################################################
 # This script contains methods to download video or audio from youtube or given URL
 ####################################################################################
 to_download = []
 voice = None
+
+
 def download_youtube_video(link: str):
     vid = YouTube(link)
     file_name = "sample"
