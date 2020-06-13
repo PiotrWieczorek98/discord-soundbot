@@ -7,6 +7,8 @@ from scripts import globalVars
 # This script generates sentences like that old man
 ###############################################################################
 korwin_list = []
+
+
 def load_list():
     for counter, entry in enumerate(os.listdir(globalVars.korwin_loc)):
         if os.path.isfile(os.path.join(globalVars.korwin_loc, entry)):

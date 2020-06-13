@@ -21,8 +21,9 @@ def upload_to_azure(file_loc: str, file_name: str, container_name: str):
         print("\nUploading to Azure Storage as blob: " + file_loc)
         with open(file_loc, "rb") as data:
             blob_client.upload_blob(data, overwrite=True)
-    except:
+    except ConnectionError:
         print("Failed uploading to azure!")
+        raise
 
 
 # Download from cloud
@@ -44,5 +45,6 @@ def download_from_azure(file_loc: str, container_name: str, overwrite: bool):
                 print(f'\fDownloading blob to {file_loc}')
                 with open(file_loc, "wb") as download_file:
                     download_file.write(blob_client.download_blob().readall())
-    except:
+    except ConnectionError:
         print("Failed downloading from azure!")
+        raise

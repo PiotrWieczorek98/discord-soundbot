@@ -20,6 +20,7 @@ def download_youtube_video(link: str):
 
     return f"{file_loc}.mp4"
 
+
 def download_youtube_audio(link: str):
     try:
         vid = YouTube(link)
@@ -30,7 +31,8 @@ def download_youtube_audio(link: str):
         return None
     return f"{file_loc}"
 
-def get_youtube_playlist_urls(link:str):
+
+def get_youtube_playlist_urls(link: str):
     try:
         playlist = Playlist(link)
         print(f"Number of videos in playlist: {len(playlist.video_urls)}")
@@ -39,6 +41,7 @@ def get_youtube_playlist_urls(link:str):
         print(f"ERROR: downloading {link} failed!")
         return None
     return urls
+
 
 def download_from_url(url, file_loc):
     # Read the gif from the web, save to the disk
