@@ -12,10 +12,10 @@ voice = None
 
 
 def download_youtube_video(link: str):
-    vid = YouTube(link)
+    video = YouTube(link)
     file_name = "sample"
     file_loc = globalVars.tmp_videos_loc + file_name
-    streams = vid.streams.filter(progressive=True, file_extension='mp4')
+    streams = video.streams.filter(progressive=True, file_extension='mp4')
     streams.order_by('resolution').desc().first().download(globalVars.tmp_videos_loc, file_name)
 
     return f"{file_loc}.mp4"
@@ -23,9 +23,10 @@ def download_youtube_video(link: str):
 
 def download_youtube_audio(link: str):
     try:
-        vid = YouTube(link)
-        streams = vid.streams.filter(only_audio=True)
-        file_loc = streams[0].download(globalVars.tmp_sounds_loc)
+        video = YouTube(link)
+        title = video.player_response['videoDetails']['title']
+        streams = video.streams.filter(only_audio=True)
+        file_loc = streams[0].download(globalVars.tmp_sounds_loc, title)
     except:
         print(f"ERROR: downloading {link} failed!")
         return None
