@@ -7,8 +7,8 @@ from PIL import ImageDraw
 from PIL import ImageFont
 from discord.ext import commands
 
-# pylint: disable=fixme, import-error
 from scripts import azureDatabase, globalVars
+
 
 ###############################################################################
 # This cog allows sending tickets to people who send anime related posts
@@ -19,7 +19,7 @@ def load_list():
     azureDatabase.download_from_azure(globalVars.txt_loc, globalVars.container_name_txt, True)
     file = open(globalVars.txt_loc + globalVars.tickets_txt, encoding='utf-8')
     lines = file.read().splitlines()
-    
+
     for entry in lines:
         str_tuple = entry.split(" ")
         int_tuple = (int(str_tuple[0]), int(str_tuple[1]))

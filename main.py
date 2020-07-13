@@ -1,12 +1,11 @@
 import asyncio
 import datetime
 import os
-import re
 
 import discord
 from discord.ext import commands
 
-from scripts import animeDetector,globalVars, korwinGenerator, download
+from scripts import animeDetector, globalVars, korwinGenerator, download
 
 ###############################################################################
 #                                   SETUP
@@ -29,6 +28,7 @@ for extension in initial_extensions:
     except Exception as e:
         print(f"Failed to load extension {extension}.")
         print(e)
+
 
 ###############################################################################
 #                               BACKGROUND TASKS
@@ -69,7 +69,6 @@ async def time_task():
             if voice and voice.is_connected():
                 await voice.disconnect()
 
-
         #######################################################################
         # Banishment
         #######################################################################
@@ -91,6 +90,7 @@ async def time_task():
 
         await asyncio.sleep(5)
 
+
 #######################################################################
 # Voice channel play queue
 #######################################################################
@@ -111,7 +111,7 @@ async def queue_task():
                         if last_source in sound_tuple[1]:
                             delete_file = False
 
-                    if delete_file:     
+                    if delete_file:
                         os.remove(last_source)
                         print(f"Removed {last_source}")
 
@@ -121,13 +121,14 @@ async def queue_task():
                 if globalVars.tmp_sounds_loc in audio_source:
                     voice.source = discord.PCMVolumeTransformer(voice.source)
                     voice.source.volume = 0.5
-                
+
                 # Move queue
                 globalVars.mp3_queue.pop(0)
                 last_source = audio_source
                 print(f"Playing {audio_source}")
 
         await asyncio.sleep(1)
+
 
 #######################################################################
 # Downloading in background queue
@@ -144,6 +145,7 @@ async def download_task():
 
         await asyncio.sleep(1)
 
+
 ###############################################################################
 # WHEN READY CHANGE STATUS AND CREATE BACKGROUND TASK
 ###############################################################################
@@ -159,5 +161,6 @@ async def on_ready():
     animeDetector.load_lists()
 
     print(f"\nLogged in as: {bot.user.name}\n")
+
 
 bot.run(os.getenv('BOT_TOKEN'))

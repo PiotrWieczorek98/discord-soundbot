@@ -6,15 +6,15 @@ from random import choice
 import discord
 from discord.ext import commands
 
-# pylint: disable=fixme, import-error
-from scripts import globalVars, korwinGenerator, azureDatabase, animeDetector, download
 from cogs import basicCommands
+from scripts import globalVars, korwinGenerator, azureDatabase, animeDetector, download
 
 ###############################################################################
 # This cog reacts to sent messages
 ###############################################################################
 
 violation_list = []
+
 
 class OnMessageEvent(commands.Cog):
     def __init__(self, bot):
@@ -138,7 +138,7 @@ class OnMessageEvent(commands.Cog):
         #                                         YOUTUBE
         ###########################################################################################################
         if "youtu" in str(message.content) and \
-        ("boi play" not in str(message.content) or "boi p" not in str(message.content)):
+                ("boi play" not in str(message.content) or "boi p" not in str(message.content)):
             file_loc = download.download_youtube_video(str(message.content))
             # Check video
             await self.detect_violation(message, file_loc)
@@ -147,7 +147,6 @@ class OnMessageEvent(commands.Cog):
         #                                           GIF
         ###########################################################################################################
         if "tenor" in str(message.content) or "giphy" in str(message.content) or "gif" in str(message.content):
-            # pylint: disable=fixme, anomalous-backslash-in-string
             link_regex = re.compile('http(?:s?):\/\/.*')
             match = link_regex.match(message.content)
             # If has a link
@@ -179,7 +178,7 @@ class OnMessageEvent(commands.Cog):
                 if found_gif:
                     print(vid_link)
                     file_loc = globalVars.images_loc + "test.gif"
-                    download.download_url(vid_link, file_loc)
+                    download.download_from_url(vid_link, file_loc)
                     detected_anime = animeDetector.detect_anime_gif(file_loc)
                     # Clean up
                     os.remove(file_loc)
@@ -187,7 +186,7 @@ class OnMessageEvent(commands.Cog):
                 elif found_mp4:
                     print(vid_link)
                     file_loc = globalVars.images_loc + "test.mp4"
-                    download.download_url(vid_link, file_loc)
+                    download.download_from_url(vid_link, file_loc)
                     detected_anime = animeDetector.detect_anime_video(file_loc)
                     # Clean up
                     os.remove(file_loc)

@@ -1,14 +1,12 @@
 import os
-import re
-import asyncio
 from random import choice
 
 import discord
 from discord.ext import commands
 from discord.utils import get
 
-# pylint: disable=fixme, import-error
 from scripts import azureDatabase, globalVars, download
+
 
 ###############################################################################
 # This cog contains bot's basic commands
@@ -38,11 +36,13 @@ def load_list():
         globalVars.mp3_tuples.append((counter, entry, name))
     print("\tSounds loaded")
 
+
 def volume(self, ctx, value: int):
     voice = get(self.bot.voice_clients, guild=ctx.guild)
     voice.source = discord.PCMVolumeTransformer(voice.source)
     voice.source.volume = value / 100
     print("Volume changed to {}%".format(value))
+
 
 # Class with usable commands
 class Basic(commands.Cog):
@@ -73,12 +73,12 @@ class Basic(commands.Cog):
                     break
                 elif not ctx.voice_client:
                     await voice_channel.connect()
-                    break                   
+                    break
 
         if not found_voice_chat:
             return
         voice = ctx.voice_client
-        
+
         #########################################################################################
         # check if it is a youtube video
         #########################################################################################
@@ -190,8 +190,8 @@ class Basic(commands.Cog):
             i -= 1
             entry = globalVars.mp3_queue.pop(i)
             if globalVars.tmp_sounds_loc in entry[1] and os.path.isfile(entry[1]):
-                    os.remove(entry[1])
-            
+                os.remove(entry[1])
+
         print("Queue reset")
         await ctx.send("Kolejka wyczyszczona.")
 
@@ -202,7 +202,7 @@ class Basic(commands.Cog):
 
     @commands.command()
     async def help(self, ctx):
-        embed = discord.Embed(title="Help",colour=discord.Colour.blue())
+        embed = discord.Embed(title="Help", colour=discord.Colour.blue())
         embed.add_field(name='play, p', value='Odtwórz dźwięk z listy lub Youtube', inline=False)
         embed.add_field(name='skip, s', value='Pomiń odtwarzany plik', inline=False)
         embed.add_field(name='stop', value='Wyczyść kolejkę', inline=False)
@@ -210,10 +210,12 @@ class Basic(commands.Cog):
         embed.add_field(name='list, sounds, l', value='Lista dźwięków', inline=False)
         embed.add_field(name='random, r', value='Losowy dźwięk z listy', inline=False)
         embed.add_field(name='disconnect, dc, leave', value='Wyjście bota z voice chatu', inline=False)
-        embed.add_field(name='ticket', value='Wystaw komuś jednego za anime. Użycie: ticket <powody> ping', inline=False)
+        embed.add_field(name='ticket', value='Wystaw komuś jednego za anime. Użycie: ticket <powody> ping',
+                        inline=False)
         embed.add_field(name='check', value='Sprawdź ile ktoś ma ticketów <id lub ping>', inline=False)
         embed.add_field(name='shutdown', value='Restart bota', inline=False)
         await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Basic(bot))

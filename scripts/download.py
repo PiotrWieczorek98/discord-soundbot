@@ -1,14 +1,16 @@
-# pylint: disable=fixme, import-error
-from scripts import globalVars
-from pytube import YouTube
-from pytube import Playlist
 import requests
+from pytube import Playlist
+from pytube import YouTube
+
+from scripts import globalVars
 
 ####################################################################################
 # This script contains methods to download video or audio from youtube or given URL
 ####################################################################################
 to_download = []
 voice = None
+
+
 def download_youtube_video(link: str):
     vid = YouTube(link)
     file_name = "sample"
@@ -17,6 +19,7 @@ def download_youtube_video(link: str):
     streams.order_by('resolution').desc().first().download(globalVars.tmp_videos_loc, file_name)
 
     return f"{file_loc}.mp4"
+
 
 def download_youtube_audio(link: str):
     try:
@@ -28,7 +31,8 @@ def download_youtube_audio(link: str):
         return None
     return f"{file_loc}"
 
-def get_youtube_playlist_urls(link:str):
+
+def get_youtube_playlist_urls(link: str):
     try:
         playlist = Playlist(link)
         print(f"Number of videos in playlist: {len(playlist.video_urls)}")
@@ -37,6 +41,7 @@ def get_youtube_playlist_urls(link:str):
         print(f"ERROR: downloading {link} failed!")
         return None
     return urls
+
 
 def download_from_url(url, file_loc):
     # Read the gif from the web, save to the disk

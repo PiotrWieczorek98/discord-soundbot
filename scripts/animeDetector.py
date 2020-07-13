@@ -1,10 +1,10 @@
 import os.path
+
 import imageio
-from acrcloud import ACRcloud
 from cv2 import cv2
 
-# pylint: disable=fixme, import-error
 from scripts import globalVars
+
 
 ###############################################################################
 # This script allows detecting anime pictures and music in given file
