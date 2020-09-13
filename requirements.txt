@@ -3,7 +3,7 @@ git+https://github.com/Rapptz/discord.py
 aiohttp==3.6.2
 async-timeout==3.0.1
 attrs==19.3.0
-cffi==1.14.0
+cffi==1.14.2
 chardet==3.0.4
 idna==2.10
 multidict==4.7.6
