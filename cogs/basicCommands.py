@@ -1,4 +1,4 @@
-import os
+import os, urllib, re
 from random import choice
 
 import discord
@@ -80,38 +80,33 @@ class Basic(commands.Cog):
         voice = ctx.voice_client
 
         #########################################################################################
-        # check if it is a youtube video
+        # Check local files
         #########################################################################################
-        if "youtu" in sound_name:
-            # if it is a playlist get urls of videos in it
-            if "&list=" in sound_name:
-                urls = download.get_youtube_playlist_urls(sound_name)
-                if urls:
-                    for url in urls:
-                        globalVars.download_queue.append((voice, url))
-            else:
-                globalVars.download_queue.append((voice, sound_name))
+        if sound_name.isdecimal():
+            # Find sound in local files
+            for entry in globalVars.mp3_tuples:
+                if int(sound_name) in entry:
+                    audio_source = globalVars.mp3_loc + entry[1]
+                    sound_tuple = (voice, audio_source)
+                    globalVars.mp3_queue.append(sound_tuple)
+                    print(f"Queued {entry[1]}")
 
         #########################################################################################
-        # Else check saved sounds
+        # Find video on youtube
         #########################################################################################
         else:
-            # Find sound
-            for entry in globalVars.mp3_tuples:
-                if sound_name.isdecimal():
-                    if int(sound_name) in entry:
-                        audio_source = globalVars.mp3_loc + entry[1]
-                        sound_tuple = (voice, audio_source)
-                        globalVars.mp3_queue.append(sound_tuple)
-                        print(f"Queued {entry[1]}")
+            # If it's a link to video
+            if "https://" in sound_name:
+                # if it is a playlist get urls of videos in it
+                if "&list=" in sound_name:
+                    urls = download.get_youtube_playlist_urls(sound_name)
+                    if urls:
+                        for url in urls:
+                            globalVars.download_queue.append((voice, url))
                 else:
-                    if not sound_name.endswith(".mp3"):
-                        sound_name += ".mp3"
-                    if sound_name in entry:
-                        audio_source = globalVars.mp3_loc + entry[1]
-                        sound_tuple = (voice, audio_source)
-                        globalVars.mp3_queue.append(sound_tuple)
-                        print(f"Queued {entry[1]}")
+                    globalVars.download_queue.append((voice, sound_name))
+
+
 
     @commands.command(aliases=['ran'])
     async def random(self, ctx):

@@ -5,7 +5,7 @@ import os
 import discord
 from discord.ext import commands
 
-from scripts import animeDetector, globalVars, korwinGenerator, download
+from scripts import globalVars, korwinGenerator, download #,animeDetector <- disabled until a good model will be made
 
 ###############################################################################
 #                                   SETUP
@@ -41,20 +41,21 @@ async def time_task():
         #######################################################################
         if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 37 and not papal_played:
             papal_played = True
-            # Find voice channel with most members
+            # Find voice_client channel with most members
             guild = bot.get_guild(globalVars.guild_wspolnota_id)
             channel_list = [len(channel.members) for channel in guild.voice_channels]
-            voice = guild.voice_client
-            if voice and voice.is_connected():
-                await voice.disconnect()
+            voice_client = guild.voice_client
+
+            if voice_client and voice_client.is_connected():
+                await voice_client.disconnect()
                 await guild.voice_channels[channel_list.index(max(channel_list))].connect()
             else:
                 await guild.voice_channels[channel_list.index(max(channel_list))].connect()
 
             # Play barka
             audio_source = globalVars.barka_loc
-            voice = guild.voice_client
-            sound_tuple = (voice, audio_source)
+            voice_client = guild.voice_client
+            sound_tuple = (voice_client, audio_source)
             globalVars.mp3_queue.insert(0, sound_tuple)
             print("queued 2137 " + audio_source)
 
@@ -65,9 +66,10 @@ async def time_task():
         if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 38 and papal_played:
             guild = bot.get_guild(globalVars.guild_wspolnota_id)
             papal_played = False
-            voice = guild.voice_client
-            if voice and voice.is_connected():
-                await voice.disconnect()
+            voice_client = guild.voice_client
+
+            if voice_client and voice_client.is_connected():
+                await voice_client.disconnect()
 
         #######################################################################
         # Banishment
@@ -98,11 +100,11 @@ async def queue_task():
     last_source = ""
     while not bot.is_closed():
         if len(globalVars.mp3_queue) > 0:
-            # sound tuple = voice client + audio source
-            voice = globalVars.mp3_queue[0][0]
+            # sound tuple (placed in mp3 queue) = voice client + audio source
+            voice_client = globalVars.mp3_queue[0][0]
             audio_source = globalVars.mp3_queue[0][1]
 
-            if not voice.is_playing():
+            if not voice_client.is_playing():
                 # clean tmp file
                 if globalVars.tmp_sounds_loc in last_source:
                     delete_file = True
@@ -116,11 +118,11 @@ async def queue_task():
                         print(f"Removed {last_source}")
 
                 # Play sound
-                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(audio_source)))
+                voice_client.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(audio_source)))
                 # Lower youtube volume
                 if globalVars.tmp_sounds_loc in audio_source:
-                    voice.source = discord.PCMVolumeTransformer(voice.source)
-                    voice.source.volume = 0.5
+                    voice_client.source = discord.PCMVolumeTransformer(voice_client.source)
+                    voice_client.source.volume = 0.5
 
                 # Move queue
                 globalVars.mp3_queue.pop(0)
@@ -136,10 +138,10 @@ async def queue_task():
 async def download_task():
     while not bot.is_closed():
         if len(globalVars.download_queue) > 0:
-            voice, url = globalVars.download_queue.pop(0)
+            voice_client, url = globalVars.download_queue.pop(0)
             loc = download.download_youtube_audio(url)
             if loc:
-                sound_tuple = (voice, loc)
+                sound_tuple = (voice_client, loc)
                 globalVars.mp3_queue.append(sound_tuple)
                 print(f"Queued {loc}")
 
@@ -158,7 +160,7 @@ async def on_ready():
 
     print("Loading lists...")
     korwinGenerator.load_list()
-    animeDetector.load_lists()
+    #animeDetector.load_lists()
 
     print(f"\nLogged in as: {bot.user.name}\n")
 
