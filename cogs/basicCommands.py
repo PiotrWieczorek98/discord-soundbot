@@ -51,16 +51,22 @@ class Basic(commands.Cog):
         load_list()
 
     @commands.command(aliases=['p'])
-    async def play(self, ctx, sound_name: str, voice_chat_name="none"):
+    async def play(self, ctx, *args):
         #########################################################################################
         # Check if voice client is in right channel
         #########################################################################################
+        #sound_name: str, voice_chat_name="none"
+
+        args_list = list(args)
+        voice_chat_name = args_list[-1]
+
         found_voice_chat = False
         for voice_chat in ctx.guild.voice_channels:
             if voice_chat_name == voice_chat.name:
                 found_voice_chat = True
+                args_list.pop()
 
-        if voice_chat_name == "none" or not found_voice_chat:
+        if not found_voice_chat:
             if ctx.author.voice:
                 found_voice_chat = True
                 voice_chat_name = ctx.author.voice.channel.name
@@ -82,6 +88,8 @@ class Basic(commands.Cog):
         #########################################################################################
         # Check local files
         #########################################################################################
+        separator = '+'
+        sound_name = separator.join(args_list)
         if sound_name.isdecimal():
             # Find sound in local files
             for entry in globalVars.mp3_tuples:
@@ -105,6 +113,12 @@ class Basic(commands.Cog):
                             globalVars.download_queue.append((voice, url))
                 else:
                     globalVars.download_queue.append((voice, sound_name))
+            
+            else:
+                html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + sound_name)
+                video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
+                sound_name = "https://www.youtube.com/watch?v=" + video_ids[0]
+                globalVars.download_queue.append((voice, sound_name))
 
 
 
