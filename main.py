@@ -10,7 +10,7 @@ from scripts import globalVars, korwinGenerator, download #,animeDetector <- dis
 ###############################################################################
 #                                   SETUP
 ###############################################################################
-# SET PREFIX, REMOVE COMMANDS TO REPLACE IT LATER, LOAD FILES
+# SET PREFIX, REMOVE DEFAULT COMMANDS TO REPLACE IT LATER, LOAD FILES
 print("Bot starts up...\n")
 
 bot = commands.Bot(command_prefix=globalVars.bot_prefix)
@@ -41,54 +41,54 @@ async def time_task():
         #######################################################################
         if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 37 and not papal_played:
             papal_played = True
-            # Find voice_client channel with most members
-            guild = bot.get_guild(globalVars.guild_wspolnota_id)
-            channel_list = [len(channel.members) for channel in guild.voice_channels]
-            voice_client = guild.voice_client
+            # # Find voice_client channel with most members
+            # guild = bot.get_guild(globalVars.guild_wspolnota_id)
+            # channel_list = [len(channel.members) for channel in guild.voice_channels]
+            # voice_client = guild.voice_client
 
-            if voice_client and voice_client.is_connected():
-                await voice_client.disconnect()
-                await guild.voice_channels[channel_list.index(max(channel_list))].connect()
-            else:
-                await guild.voice_channels[channel_list.index(max(channel_list))].connect()
+            # if voice_client and voice_client.is_connected():
+            #     await voice_client.disconnect()
+            #     await guild.voice_channels[channel_list.index(max(channel_list))].connect()
+            # else:
+            #     await guild.voice_channels[channel_list.index(max(channel_list))].connect()
 
-            # Play barka
-            audio_source = globalVars.barka_loc
-            voice_client = guild.voice_client
-            sound_tuple = (voice_client, audio_source)
-            globalVars.mp3_queue.insert(0, sound_tuple)
-            print("queued 2137 " + audio_source)
+            # # Play barka
+            # audio_source = globalVars.barka_loc
+            # voice_client = guild.voice_client
+            # sound_tuple = (voice_client, audio_source)
+            # globalVars.mp3_queue.insert(0, sound_tuple)
+            # print("queued 2137 " + audio_source)
 
             # Send message
             await guild.text_channels[0].send("My God look at the time!")
 
-        # Disconnect after a minute
-        if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 38 and papal_played:
-            guild = bot.get_guild(globalVars.guild_wspolnota_id)
-            papal_played = False
-            voice_client = guild.voice_client
+        # # Disconnect after a minute
+        # if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 38 and papal_played:
+        #     guild = bot.get_guild(globalVars.guild_wspolnota_id)
+        #     papal_played = False
+        #     voice_client = guild.voice_client
 
-            if voice_client and voice_client.is_connected():
-                await voice_client.disconnect()
+        #     if voice_client and voice_client.is_connected():
+        #         await voice_client.disconnect()
 
         #######################################################################
         # Banishment
         #######################################################################
 
-        for i in range(len(globalVars.banished_users)):
-            incremented = (
-                globalVars.banished_users[i][0],
-                globalVars.banished_users[i][1] + 1,
-                globalVars.banished_users[i][2])
+        # for i in range(len(globalVars.banished_users)):
+        #     incremented = (
+        #         globalVars.banished_users[i][0],
+        #         globalVars.banished_users[i][1] + 1,
+        #         globalVars.banished_users[i][2])
 
-            # Check if penalty time passed
-            if incremented[1] >= incremented[2]:
-                globalVars.banished_users.pop(i)
-                role = incremented[0].guild.get_role(globalVars.banished_role)
-                await incremented[0].remove_roles(role)
-                print(f"Removed from banishment {incremented[0].display_name}")
-            else:
-                globalVars.banished_users[i] = incremented
+        #     # Check if penalty time passed
+        #     if incremented[1] >= incremented[2]:
+        #         globalVars.banished_users.pop(i)
+        #         role = incremented[0].guild.get_role(globalVars.banished_role)
+        #         await incremented[0].remove_roles(role)
+        #         print(f"Removed from banishment {incremented[0].display_name}")
+        #     else:
+        #         globalVars.banished_users[i] = incremented
 
         await asyncio.sleep(5)
 
