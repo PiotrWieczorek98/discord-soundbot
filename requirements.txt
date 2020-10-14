@@ -16,7 +16,7 @@ yarl==1.6.0
 opuslib==3.0.1
 pillow==7.2.0
 azure-storage-blob==12.5.0
-azure-mgmt-storage==11.2.0
+azure-mgmt-storage==16.0.0
 opencv-python==4.4.0.42
 acrcloud==2.0
 imageio==2.9.0
