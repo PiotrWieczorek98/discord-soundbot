@@ -21,10 +21,12 @@ def download_youtube_video(link: str):
     return f"{file_loc}.mp4"
 
 
-def download_youtube_audio(link: str):
+def download_youtube_audio(link: str, name:str=None):
     try:
         video = YouTube(link)
         title = video.player_response['videoDetails']['title']
+        if name is not None:
+            title += name
         streams = video.streams.filter(only_audio=True)
         file_loc = streams[0].download(globalVars.tmp_sounds_loc, title)
     except:

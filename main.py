@@ -139,7 +139,7 @@ async def download_task():
     while not bot.is_closed():
         if len(globalVars.download_queue) > 0:
             voice_client, url = globalVars.download_queue.pop(0)
-            loc = download.download_youtube_audio(url)
+            loc = download.download_youtube_audio(url, voice_client.guild.name)
             if loc:
                 sound_tuple = (voice_client, loc)
                 globalVars.mp3_queue.append(sound_tuple)

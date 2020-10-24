@@ -57,6 +57,7 @@ class Basic(commands.Cog):
         #########################################################################################
         #sound_name: str, voice_chat_name="none"
 
+        # Check if channel name was given as argument
         args_list = list(args)
         voice_chat_name = args_list[-1]
 
@@ -66,11 +67,13 @@ class Basic(commands.Cog):
                 found_voice_chat = True
                 args_list.pop()
 
+        # If not try to find channel where message author is
         if not found_voice_chat:
             if ctx.author.voice:
                 found_voice_chat = True
                 voice_chat_name = ctx.author.voice.channel.name
 
+        # Try to connect to given voice channel
         for voice_channel in ctx.guild.voice_channels:
             if voice_channel.name == voice_chat_name:
                 if ctx.voice_client and voice_channel.name != ctx.voice_client.channel.name:
@@ -113,7 +116,7 @@ class Basic(commands.Cog):
                             globalVars.download_queue.append((voice, url))
                 else:
                     globalVars.download_queue.append((voice, sound_name))
-            
+            # If it's not a link, find first youtube search result
             else:
                 html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + sound_name)
                 video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
@@ -121,7 +124,7 @@ class Basic(commands.Cog):
                 globalVars.download_queue.append((voice, sound_name))
 
 
-
+    # Play random local sound
     @commands.command(aliases=['ran'])
     async def random(self, ctx):
         if ctx.voice_client and ctx.voice_client.is_connected():
