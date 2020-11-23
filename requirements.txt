@@ -20,4 +20,4 @@ azure-mgmt-storage==11.2.0
 opencv-python==4.4.0.42
 acrcloud==2.0
 imageio==2.9.0
-pytube3==9.6.4
+git+https://github.com/nficano/pytube
