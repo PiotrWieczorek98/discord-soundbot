@@ -41,26 +41,26 @@ async def time_task():
         #######################################################################
         if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 37 and not papal_played:
             papal_played = True
-            # # Find voice_client channel with most members
-            # guild = bot.get_guild(globalVars.guild_wspolnota_id)
-            # channel_list = [len(channel.members) for channel in guild.voice_channels]
-            # voice_client = guild.voice_client
+            # Find voice_client channel with most members
+            guild = bot.get_guild(globalVars.guild_wspolnota_id)
+            channel_list = [len(channel.members) for channel in guild.voice_channels]
+            voice_client = guild.voice_client
 
-            # if voice_client and voice_client.is_connected():
-            #     await voice_client.disconnect()
-            #     await guild.voice_channels[channel_list.index(max(channel_list))].connect()
-            # else:
-            #     await guild.voice_channels[channel_list.index(max(channel_list))].connect()
+            if voice_client and voice_client.is_connected():
+                await voice_client.disconnect()
+                await guild.voice_channels[channel_list.index(max(channel_list))].connect()
+            else:
+                 await guild.voice_channels[channel_list.index(max(channel_list))].connect()
 
             # # Play barka
-            # audio_source = globalVars.barka_loc
-            # voice_client = guild.voice_client
-            # sound_tuple = (voice_client, audio_source)
-            # globalVars.mp3_queue.insert(0, sound_tuple)
-            # print("queued 2137 " + audio_source)
+            audio_source = globalVars.barka_loc
+            voice_client = guild.voice_client
+            sound_tuple = (voice_client, audio_source)
+            globalVars.mp3_queue.insert(0, sound_tuple)
+            print("queued 2137 " + audio_source)
 
             # Send message
-            await guild.text_channels[0].send("My God look at the time!")
+            await guild.text_channels[0].send("My God look ̴̧̋̇̾̃͆a̵̢͔̲̯̩͋͒ͅt̵̛̯̹̽̽̽̕͝ ̸̧͔̮̬̀͐̍̀̄̾͠ẗ̵͖͈̪͔̳̭́h̵̤̯͔̗̉e̸͔̳̺͔̪̙̟͌̈͗̈̔̕͠ ̴̡͗͛̈́̀́͠t̵̳͔͇͋̒̌̍͋̚i̶̮̊̂͂̽͘͠ṃ̸̧̛̯̞̄͂̒e̶͙͚̪̿!̷̡̡̟̹̾!̶͉̜̿̀͆͠** ̸̝̿P̷̼͍̒A̶̛͕̐̃̓͝D̶̡̡̝̹̩̟̎̿Ǫ̵̥̪̼̾́͒̀͝͝ͅR̴͙̠̺̫̻͚͑̈̈́̆̈́́̈́͜Ú̴̢͖̙̬̈́̅͌͝ ̶̼̺͓͑̆̈́̀̍͆P̴̞̙̦̌A̸̛͔̬͖̣̻̭̓́͜D̴͙͚̯͖̙͉̥̉͂̋̓̾͂O̴̞̼̓͌͆͐͊̓R̶̤̓͛̋̌̿Ư̶̩̮̐́͑̒͝**")
 
         # # Disconnect after a minute
         # if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 38 and papal_played:
@@ -136,16 +136,21 @@ async def queue_task():
 # Downloading in background queue
 #######################################################################
 async def download_task():
+    last_url = ''
+    loc = ''
     while not bot.is_closed():
         if len(globalVars.download_queue) > 0:
             voice_client, url = globalVars.download_queue.pop(0)
-            loc = download.download_youtube_audio(url, voice_client.guild.name)
+            if url != last_url:
+                loc = download.download_youtube_audio(url, voice_client.guild.name)
+                last_url = url
             if loc:
                 sound_tuple = (voice_client, loc)
                 globalVars.mp3_queue.append(sound_tuple)
                 print(f"Queued {loc}")
 
         await asyncio.sleep(1)
+
 
 
 ###############################################################################

@@ -144,8 +144,8 @@ class Basic(commands.Cog):
         if voice and voice.is_playing():
             voice.stop()
 
-    @commands.command(aliases=['l', 'sounds'])
-    async def list(self, ctx):
+    @commands.command(aliases=['list', 'sounds', 'l'])
+    async def lista(self, ctx):
         message = "```css\n[Lista Dźwięków]\n"
         previous_name = globalVars.mp3_tuples[0][2]
 
@@ -211,6 +211,15 @@ class Basic(commands.Cog):
     async def shutdown(self, ctx):
         print("Shutting down...")
         await self.bot.close()
+
+    @commands.command()
+    async def badura(self,ctx):
+        globalVars.badura_absent = True
+        i = 0
+        while i <= 200:
+            i += 1
+            await ctx.invoke(self.bot.get_command('play'), 'https://youtu.be/hb6A1ASWaN8')
+
 
     @commands.command()
     async def help(self, ctx):

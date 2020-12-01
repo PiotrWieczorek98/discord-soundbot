@@ -8,7 +8,8 @@ txt_loc = "data/txt/"
 images_loc = "data/images/"
 fonts_loc = "data/fonts/"
 korwin_loc = "data/korwin/"
-barka_loc = "data/sounds/Random_Barka.mp3"
+#barka_loc = "data/sounds/Random_Barka.mp3"
+barka_loc = "data/sounds/Random_Padoru.mp3"
 tmp_sounds_loc = "data/tmp/sounds/"
 tmp_videos_loc = "data/tmp/videos/"
 tmp_images_loc = "data/tmp/images/"
@@ -38,5 +39,10 @@ container_name_mp3 = "mp3"
 # IDs
 sounds_channel_id = 594937312736182313
 guild_wspolnota_id = 203114439468253184
-guild_test_id = 346940317376839681
+guild_test_id = 769493058604498954
 banished_role = 688352776446541844
+badura_id = 200245153586216960
+pieczor_id = 200303039863717889
+
+#Badura Theme
+badura_absent = False
