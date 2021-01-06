@@ -60,7 +60,7 @@ async def time_task():
             print("queued 2137 " + audio_source)
 
             # Send message
-            await guild.text_channels[0].send("My God look ̴̧̋̇̾̃͆a̵̢͔̲̯̩͋͒ͅt̵̛̯̹̽̽̽̕͝ ̸̧͔̮̬̀͐̍̀̄̾͠ẗ̵͖͈̪͔̳̭́h̵̤̯͔̗̉e̸͔̳̺͔̪̙̟͌̈͗̈̔̕͠ ̴̡͗͛̈́̀́͠t̵̳͔͇͋̒̌̍͋̚i̶̮̊̂͂̽͘͠ṃ̸̧̛̯̞̄͂̒e̶͙͚̪̿!̷̡̡̟̹̾!̶͉̜̿̀͆͠** ̸̝̿P̷̼͍̒A̶̛͕̐̃̓͝D̶̡̡̝̹̩̟̎̿Ǫ̵̥̪̼̾́͒̀͝͝ͅR̴͙̠̺̫̻͚͑̈̈́̆̈́́̈́͜Ú̴̢͖̙̬̈́̅͌͝ ̶̼̺͓͑̆̈́̀̍͆P̴̞̙̦̌A̸̛͔̬͖̣̻̭̓́͜D̴͙͚̯͖̙͉̥̉͂̋̓̾͂O̴̞̼̓͌͆͐͊̓R̶̤̓͛̋̌̿Ư̶̩̮̐́͑̒͝**")
+            await guild.text_channels[0].send("My God, look at the time!")
 
         # # Disconnect after a minute
         # if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 38 and papal_played:
@@ -151,7 +151,23 @@ async def download_task():
 
         await asyncio.sleep(1)
 
-
+#######################################################################
+# Badura timer
+#######################################################################
+async def badura_task():
+    timer = 0
+    guild = bot.get_guild(globalVars.guild_test_id)
+    while not bot.is_closed():
+        if globalVars.badura_absent:
+            timer += 1
+            for voice_channel in guild.voice_channels:
+                for member in voice_channel.members:
+                    if globalVars.pieczor_id == member.id:
+                        globalVars.badura_absent = False
+                        await ctx.invoke(self.bot.get_command('stop'))
+        else:
+            timer = 0
+        await asyncio.sleep(1)
 
 ###############################################################################
 # WHEN READY CHANGE STATUS AND CREATE BACKGROUND TASK
