@@ -64,12 +64,12 @@ async def time_task():
 
          # Disconnect after a minute
          if datetime.datetime.now().hour == 21 and datetime.datetime.now().minute == 38 and papal_played:
-             guild = bot.get_guild(globalVars.guild_wspolnota_id)
-             papal_played = False
-             voice_client = guild.voice_client
+            guild = bot.get_guild(globalVars.guild_wspolnota_id)
+            papal_played = False
+            voice_client = guild.voice_client
 
-             if voice_client and voice_client.is_connected():
-                 await voice_client.disconnect()
+            if voice_client and voice_client.is_connected():
+                await voice_client.disconnect()
 
         #######################################################################
         # Banishment
